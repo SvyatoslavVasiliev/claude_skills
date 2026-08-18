@@ -1,0 +1,5 @@
+snapshots/
+probes/
+reports/
+.mfr-profile-*/
+tests/fixtures/*/inventory.json
