@@ -1,0 +1,1309 @@
+<title>Каталог музыкального стриминга</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+/* ---------- tokens: light is the base set ---------- */
+:root{
+  --bg:#F2F4F6; --surface:#FFFFFF; --surface-2:#F7F9FA; --surface-3:#E9EEF1;
+  --border:#DBE1E6; --border-strong:#BFC8D0;
+  --ink:#12171C; --ink-2:#3C464F; --muted:#6B7681;
+  --accent:#A81F35; --accent-ink:#8A1A2C; --accent-soft:#F6E4E7;
+  --f-work:#A81F35; --f-release:#1B6A71; --f-people:#3F49A0;
+  --f-curation:#556A26; --f-context:#8A5814; --f-user:#46566A;
+  --shadow:0 1px 2px rgba(18,23,28,.05), 0 10px 28px -18px rgba(18,23,28,.4);
+  --rule:1px solid var(--border);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1216; --surface:#161C22; --surface-2:#1B222A; --surface-3:#232C36;
+    --border:#28313A; --border-strong:#3D4954;
+    --ink:#E9EDF1; --ink-2:#BDC7D0; --muted:#8794A1;
+    --accent:#F2607A; --accent-ink:#FF8A9F; --accent-soft:#2C1620;
+    --f-work:#F2607A; --f-release:#4FB8C0; --f-people:#8D94F2;
+    --f-curation:#AAC463; --f-context:#D9A24E; --f-user:#93A6BA;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 28px -18px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1216; --surface:#161C22; --surface-2:#1B222A; --surface-3:#232C36;
+  --border:#28313A; --border-strong:#3D4954;
+  --ink:#E9EDF1; --ink-2:#BDC7D0; --muted:#8794A1;
+  --accent:#F2607A; --accent-ink:#FF8A9F; --accent-soft:#2C1620;
+  --f-work:#F2607A; --f-release:#4FB8C0; --f-people:#8D94F2;
+  --f-curation:#AAC463; --f-context:#D9A24E; --f-user:#93A6BA;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 28px -18px rgba(0,0,0,.9);
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Source Serif 4", Georgia, "Times New Roman", serif;
+  font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.ui{font-family:Archivo, "Helvetica Neue", Arial, sans-serif;}
+code,kbd,.mono{font-family:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;}
+
+.wrap{max-width:1240px; margin:0 auto; padding:0 28px 120px;}
+
+/* ---------- masthead ---------- */
+.masthead{
+  border-bottom:3px solid var(--ink);
+  padding:64px 0 26px; margin-bottom:0;
+}
+.eyebrow{
+  font-family:"JetBrains Mono", monospace; font-size:11.5px; font-weight:600;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--accent);
+  margin:0 0 20px;
+}
+h1{
+  font-size:clamp(38px, 6.4vw, 76px); line-height:.96; margin:0 0 22px;
+  font-weight:800; font-variation-settings:"wdth" 112; letter-spacing:-.022em;
+  text-wrap:balance; max-width:16ch;
+}
+.standfirst{
+  font-size:clamp(18px,2.1vw,22px); line-height:1.5; color:var(--ink-2);
+  max-width:62ch; margin:0 0 30px;
+}
+.facts{display:flex; flex-wrap:wrap; gap:0; border-top:var(--rule);}
+.fact{
+  flex:1 1 190px; padding:16px 22px 14px; border-right:var(--rule);
+}
+.fact:last-child{border-right:none}
+.fact b{
+  display:block; font-family:Archivo,sans-serif; font-variation-settings:"wdth" 108;
+  font-weight:700; font-size:26px; line-height:1.1; letter-spacing:-.01em;
+}
+.fact span{
+  display:block; font-family:"JetBrains Mono",monospace; font-size:10.5px;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin-top:6px;
+}
+
+/* ---------- layout ---------- */
+.cols{display:block;}
+@media (min-width:1080px){
+  .cols{display:grid; grid-template-columns:214px minmax(0,1fr); gap:56px; align-items:start;}
+}
+nav.toc{display:none;}
+@media (min-width:1080px){
+  nav.toc{
+    display:block; position:sticky; top:24px; padding-top:44px;
+    font-family:Archivo,sans-serif; font-size:13.5px; line-height:1.35;
+  }
+  nav.toc ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;}
+  nav.toc a{
+    display:flex; gap:10px; padding:7px 10px; border-radius:5px;
+    color:var(--muted); text-decoration:none; border-left:2px solid transparent;
+  }
+  nav.toc a:hover{color:var(--ink); background:var(--surface-2); border-left-color:var(--accent);}
+  nav.toc a:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  nav.toc .n{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--border-strong); padding-top:1px;}
+}
+main{padding-top:44px; min-width:0;}
+
+section{margin:0 0 76px; scroll-margin-top:24px;}
+h2{
+  font-size:clamp(25px,3.2vw,34px); line-height:1.12; font-weight:700;
+  font-variation-settings:"wdth" 108; letter-spacing:-.016em;
+  margin:0 0 8px; text-wrap:balance;
+}
+.sec-head{border-top:2px solid var(--ink); padding-top:14px; margin-bottom:26px;}
+.sec-head .kicker{
+  font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 12px;
+}
+.sec-head p{margin:10px 0 0; color:var(--ink-2); max-width:66ch;}
+h3{
+  font-size:20px; font-weight:700; font-variation-settings:"wdth" 105;
+  letter-spacing:-.008em; margin:38px 0 10px; text-wrap:balance;
+}
+h4{font-size:15px; font-weight:700; margin:22px 0 8px; letter-spacing:-.004em;}
+p{margin:0 0 15px; max-width:66ch;}
+ul,ol{max-width:66ch; padding-left:22px; margin:0 0 15px;}
+li{margin-bottom:7px;}
+strong{font-weight:600; color:var(--ink);}
+a{color:var(--accent-ink); text-underline-offset:2px;}
+em{font-style:italic; color:var(--ink-2);}
+
+/* ---------- inline code & chips ---------- */
+code{
+  font-size:.82em; background:var(--surface-3); color:var(--ink);
+  padding:1px 5px; border-radius:4px; white-space:nowrap;
+}
+.chip{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:"JetBrains Mono",monospace; font-size:10.5px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 9px; border-radius:100px; border:1px solid currentColor;
+}
+
+/* ---------- callout ---------- */
+.note{
+  border-left:3px solid var(--accent); background:var(--accent-soft);
+  padding:16px 20px; margin:24px 0; border-radius:0 6px 6px 0; max-width:70ch;
+}
+.note p{margin:0; color:var(--ink);}
+.note p + p{margin-top:10px;}
+.note .lbl{
+  display:block; font-family:"JetBrains Mono",monospace; font-size:10.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent-ink);
+  margin-bottom:8px; font-weight:600;
+}
+
+/* ---------- figures ---------- */
+figure{margin:30px 0; }
+.scroller{
+  overflow-x:auto; background:var(--surface); border:var(--rule);
+  border-radius:8px; box-shadow:var(--shadow);
+}
+figure svg{display:block; min-width:940px; width:100%; height:auto;}
+figcaption{
+  font-size:14px; color:var(--muted); margin-top:12px; max-width:70ch;
+  font-family:Archivo,sans-serif; line-height:1.45;
+}
+figcaption b{color:var(--ink-2); font-weight:600;}
+
+/* svg type */
+.svg-title{font-family:Archivo,sans-serif; font-weight:700; font-size:15px; fill:var(--ink); font-variation-settings:"wdth" 105;}
+.svg-sub{font-family:"Source Serif 4",serif; font-size:13px; fill:var(--ink-2);}
+.svg-lbl{font-family:"JetBrains Mono",monospace; font-size:10.5px; letter-spacing:.11em; fill:var(--muted); text-transform:uppercase;}
+.svg-tag{font-family:"JetBrains Mono",monospace; font-size:11px; fill:var(--muted);}
+.svg-band{fill:var(--surface-2); stroke:var(--border);}
+.svg-box{fill:var(--surface); stroke:var(--border-strong); stroke-width:1.5;}
+.svg-line{stroke:var(--border-strong); stroke-width:1.5; fill:none;}
+.svg-dash{stroke:var(--accent); stroke-width:1.5; fill:none; stroke-dasharray:5 4;}
+
+/* ---------- tables ---------- */
+.tbl{overflow-x:auto; margin:24px 0; border:var(--rule); border-radius:8px; background:var(--surface); box-shadow:var(--shadow);}
+table{border-collapse:collapse; width:100%; min-width:620px; font-size:14.5px;}
+thead th{
+  font-family:Archivo,sans-serif; font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+  text-align:left; padding:12px 16px; border-bottom:1.5px solid var(--border-strong);
+  background:var(--surface-2); white-space:nowrap;
+}
+tbody td{padding:11px 16px; border-bottom:var(--rule); vertical-align:top; line-height:1.45;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+td.mono, th.mono{font-family:"JetBrains Mono",monospace; font-size:12.5px; white-space:nowrap;}
+td.mono b{font-weight:600;}
+.t-num{font-variant-numeric:tabular-nums;}
+
+/* ---------- entity cards ---------- */
+.family{margin:34px 0 0;}
+.family-head{
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  padding:0 0 10px; border-bottom:2px solid var(--fam); margin-bottom:20px;
+}
+.family-head h3{margin:0; font-size:19px; color:var(--fam);}
+.family-head .who{font-size:14px; color:var(--muted); font-family:Archivo,sans-serif;}
+.card{
+  background:var(--surface); border:var(--rule); border-left:3px solid var(--fam);
+  border-radius:0 8px 8px 0; padding:18px 22px; margin-bottom:14px; box-shadow:var(--shadow);
+}
+.card > h4{
+  margin:0 0 4px; font-size:16px; font-family:Archivo,sans-serif;
+  font-variation-settings:"wdth" 104;
+}
+.card > h4 .lat{font-family:"JetBrains Mono",monospace; font-size:12px; color:var(--muted); font-weight:400; margin-left:8px;}
+.card > p{font-size:15px; color:var(--ink-2); margin:0 0 12px; max-width:74ch;}
+.fields{
+  display:grid; grid-template-columns:1fr; gap:0;
+  font-family:"JetBrains Mono",monospace; font-size:12.3px; line-height:1.5;
+}
+@media (min-width:700px){.fields{grid-template-columns:1fr 1fr; column-gap:28px;}}
+.fields div{padding:5px 0; border-top:1px dotted var(--border);}
+.fields b{font-weight:600; color:var(--ink);}
+.fields i{font-style:normal; color:var(--muted); font-family:"Source Serif 4",serif; font-size:13.5px;}
+
+/* ---------- steps ---------- */
+ol.steps{list-style:none; padding:0; counter-reset:s; max-width:70ch;}
+ol.steps li{
+  counter-increment:s; position:relative; padding-left:44px; margin-bottom:14px;
+}
+ol.steps li::before{
+  content:counter(s); position:absolute; left:0; top:1px;
+  width:28px; height:28px; border-radius:50%; background:var(--ink); color:var(--bg);
+  font-family:"JetBrains Mono",monospace; font-size:12px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+}
+
+/* ---------- code block ---------- */
+pre{
+  background:var(--surface); border:var(--rule); border-radius:8px;
+  padding:18px 20px; overflow-x:auto; font-size:12.6px; line-height:1.6;
+  box-shadow:var(--shadow); margin:20px 0;
+}
+pre code{background:none; padding:0; white-space:pre; font-size:inherit;}
+details{border:var(--rule); border-radius:8px; background:var(--surface); margin:20px 0; box-shadow:var(--shadow);}
+details > summary{
+  cursor:pointer; padding:14px 20px; font-family:Archivo,sans-serif; font-weight:600;
+  font-size:15px; list-style:none; display:flex; align-items:center; gap:10px;
+}
+details > summary::-webkit-details-marker{display:none}
+details > summary::before{content:"▸"; color:var(--accent); font-size:13px;}
+details[open] > summary::before{content:"▾";}
+details > summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+details pre{border:none; border-top:var(--rule); border-radius:0 0 8px 8px; box-shadow:none; margin:0;}
+
+footer{
+  border-top:2px solid var(--ink); padding-top:20px; margin-top:20px;
+  font-family:Archivo,sans-serif; font-size:13px; color:var(--muted);
+  display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap;
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Схема данных и связей · музыкальный стриминг</p>
+  <h1>Каталог музыкального стриминга</h1>
+  <p class="standfirst">Модель каталога, в которой у трека есть родительская сущность: она собирает все версии одного прочтения — студийную, концертную, старую запись, ремастер, перезапись — и связывает их с каверами других артистов. Спроектирована так, чтобы из неё напрямую выводились точки входа в слушание, информационная архитектура экранов и разметка событий для CJM.</p>
+  <div class="facts">
+    <div class="fact"><b>3</b><span>уровня каталога</span></div>
+    <div class="fact"><b>6</b><span>семейств сущностей</span></div>
+    <div class="fact"><b>14</b><span>точек входа в плей</span></div>
+    <div class="fact"><b>1</b><span>правило выбора версии</span></div>
+  </div>
+</header>
+
+<div class="cols">
+
+<nav class="toc" aria-label="Содержание">
+  <ol>
+    <li><a href="#idea"><span class="n">01</span><span>Главная идея</span></a></li>
+    <li><a href="#mapping"><span class="n">02</span><span>Ваши 8 сущностей</span></a></li>
+    <li><a href="#map"><span class="n">03</span><span>Карта связей</span></a></li>
+    <li><a href="#spec"><span class="n">04</span><span>Спецификация</span></a></li>
+    <li><a href="#versions"><span class="n">05</span><span>Версии и каверы</span></a></li>
+    <li><a href="#resolve"><span class="n">06</span><span>Выбор версии</span></a></li>
+    <li><a href="#entry"><span class="n">07</span><span>Точки входа</span></a></li>
+    <li><a href="#ia"><span class="n">08</span><span>Экраны и ИА</span></a></li>
+    <li><a href="#cjm"><span class="n">09</span><span>CJM и события</span></a></li>
+    <li><a href="#open"><span class="n">10</span><span>Решения к принятию</span></a></li>
+    <li><a href="#phasing"><span class="n">11</span><span>Что резать в MVP</span></a></li>
+    <li><a href="#ddl"><span class="n">12</span><span>DDL-набросок</span></a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ============ 01 ============ -->
+<section id="idea">
+  <div class="sec-head">
+    <p class="kicker">01 · Основание модели</p>
+    <h2>Три уровня вместо одного «трека»</h2>
+    <p>Почти вся боль музыкального каталога — от того, что слово «трек» означает три разные вещи. Разделив их, вы получаете и родительскую сущность, о которой просите, и корректные каверы, и чистую статистику.</p>
+  </div>
+
+  <p><b>Произведение</b> — это то, что написали: мелодия и текст. У него есть композитор и поэт, срок охраны прав, международный код ISWC. Оно не звучит.</p>
+  <p><b>Трек</b> — это прочтение произведения конкретным артистом. Именно здесь живёт «Hurt Джонни Кэша» как отдельная вещь от «Hurt Nine Inch Nails». Это ваша родительская сущность: контейнер всех версий одного прочтения.</p>
+  <p><b>Запись</b> — конкретная фонограмма с кодом ISRC, длительностью, датой записи и правами на территорию. Только она физически играет.</p>
+
+  <div class="note">
+    <span class="lbl">Ключевое разделение</span>
+    <p><b>Лайк, подписка, «моя музыка» и агрегированная популярность живут на уровне Трека.</b> Человек любит песню, а не мастеринг 2015 года. Плей, длительность, доступность и лицензия живут на уровне Записи. Авторские отчисления и «все каверы» — на уровне Произведения.</p>
+    <p>Без этого разделения вы получите каталог, где одна песня лежит семью строками в поиске, лайк на ремастере не виден на оригинале, а кавер невозможно отличить от ремикса.</p>
+  </div>
+
+  <figure>
+    <div class="scroller">
+      <svg viewBox="0 0 1200 430" role="img" aria-labelledby="d1t">
+        <title id="d1t">Три уровня каталога: произведение, трек, запись — на примере песни Hurt</title>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--border-strong)"/>
+          </marker>
+          <marker id="ahA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+
+        <!-- L0 -->
+        <rect class="svg-band" x="200" y="8" width="980" height="100" rx="8"/>
+        <text class="svg-lbl" x="20" y="34">L0 · Произведение</text>
+        <text class="svg-tag" x="20" y="56">ISWC</text>
+        <text class="svg-tag" x="20" y="74">авторские права</text>
+        <text class="svg-tag" x="20" y="92">все каверы мира</text>
+        <rect class="svg-box" x="550" y="26" width="280" height="64" rx="7" stroke="var(--f-work)"/>
+        <text class="svg-title" x="690" y="52" text-anchor="middle">«Hurt»</text>
+        <text class="svg-sub" x="690" y="74" text-anchor="middle">музыка и текст: Трент Резнор</text>
+
+        <path class="svg-line" d="M690 90 V126 H450 V146" marker-end="url(#ah)"/>
+        <path class="svg-line" d="M690 90 V126 H930 V146" marker-end="url(#ah)"/>
+
+        <!-- L1 -->
+        <rect class="svg-band" x="200" y="126" width="980" height="120" rx="8"/>
+        <text class="svg-lbl" x="20" y="152">L1 · Трек</text>
+        <text class="svg-tag" x="20" y="174">лайк и сохранение</text>
+        <text class="svg-tag" x="20" y="192">подписка на артиста</text>
+        <text class="svg-tag" x="20" y="210">роллап популярности</text>
+        <text class="svg-tag" x="20" y="228">родительская сущность</text>
+        <rect class="svg-box" x="260" y="148" width="380" height="76" rx="7" stroke="var(--f-work)"/>
+        <text class="svg-title" x="450" y="176" text-anchor="middle">Nine Inch Nails — Hurt</text>
+        <text class="svg-sub" x="450" y="200" text-anchor="middle">оригинальное прочтение</text>
+        <rect class="svg-box" x="740" y="148" width="380" height="76" rx="7" stroke="var(--f-work)"/>
+        <text class="svg-title" x="930" y="176" text-anchor="middle">Johnny Cash — Hurt</text>
+        <text class="svg-sub" x="930" y="200" text-anchor="middle">кавер прочтения NIN</text>
+        <path class="svg-dash" d="M740 178 H648" marker-end="url(#ahA)"/>
+        <text class="svg-tag" x="690" y="204" text-anchor="middle" fill="var(--accent)">is_cover_of</text>
+
+        <path class="svg-line" d="M450 224 V254 H333 V284" marker-end="url(#ah)"/>
+        <path class="svg-line" d="M450 224 V254 H571 V284" marker-end="url(#ah)"/>
+        <path class="svg-line" d="M930 224 V254 H809 V284" marker-end="url(#ah)"/>
+        <path class="svg-line" d="M930 224 V254 H1047 V284" marker-end="url(#ah)"/>
+
+        <!-- L2 -->
+        <rect class="svg-band" x="200" y="264" width="980" height="150" rx="8"/>
+        <text class="svg-lbl" x="20" y="290">L2 · Запись</text>
+        <text class="svg-tag" x="20" y="312">ISRC</text>
+        <text class="svg-tag" x="20" y="330">длительность, темп</text>
+        <text class="svg-tag" x="20" y="348">лицензия и территория</text>
+        <text class="svg-tag" x="20" y="366">музыканты и продюсер</text>
+        <text class="svg-tag" x="20" y="384">это и есть плей</text>
+
+        <rect class="svg-box" x="225" y="286" width="216" height="106" rx="7" stroke="var(--f-release)"/>
+        <text class="svg-title" x="333" y="314" text-anchor="middle" font-size="14">Студийная</text>
+        <text class="svg-sub" x="333" y="336" text-anchor="middle" font-size="12">The Downward Spiral</text>
+        <text class="svg-tag" x="333" y="358" text-anchor="middle">1994 · studio</text>
+        <text class="svg-tag" x="333" y="376" text-anchor="middle">is_primary</text>
+
+        <rect class="svg-box" x="463" y="286" width="216" height="106" rx="7" stroke="var(--f-release)"/>
+        <text class="svg-title" x="571" y="314" text-anchor="middle" font-size="14">Концертная</text>
+        <text class="svg-sub" x="571" y="336" text-anchor="middle" font-size="12">Woodstock '94</text>
+        <text class="svg-tag" x="571" y="358" text-anchor="middle">1994 · live</text>
+        <text class="svg-tag" x="571" y="376" text-anchor="middle">→ Событие</text>
+
+        <rect class="svg-box" x="701" y="286" width="216" height="106" rx="7" stroke="var(--f-release)"/>
+        <text class="svg-title" x="809" y="314" text-anchor="middle" font-size="14">Студийная</text>
+        <text class="svg-sub" x="809" y="336" text-anchor="middle" font-size="12">American IV</text>
+        <text class="svg-tag" x="809" y="358" text-anchor="middle">2002 · studio</text>
+        <text class="svg-tag" x="809" y="376" text-anchor="middle">is_primary</text>
+
+        <rect class="svg-box" x="939" y="286" width="216" height="106" rx="7" stroke="var(--f-release)"/>
+        <text class="svg-title" x="1047" y="314" text-anchor="middle" font-size="14">Ремастер</text>
+        <text class="svg-sub" x="1047" y="336" text-anchor="middle" font-size="12">то же исполнение</text>
+        <text class="svg-tag" x="1047" y="358" text-anchor="middle">2015 · remaster</text>
+        <text class="svg-tag" x="1047" y="376" text-anchor="middle">→ Запись 2002</text>
+      </svg>
+    </div>
+    <figcaption><b>Позвоночник каталога.</b> Кавер — это связь между Треками (новое прочтение того же Произведения). Концертник и ремастер — это Записи внутри одного Трека. Разные типы связи на разных уровнях: именно это позволяет показать «все версии» отдельно от «кто ещё это пел».</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="mapping">
+  <div class="sec-head">
+    <p class="kicker">02 · Перевод вашего списка</p>
+    <h2>Куда ложатся ваши восемь сущностей</h2>
+    <p>Три из восьми — Композитор, Поэт и Музыканты — в модели не таблицы, а роли. Это не педантизм: Меркьюри одновременно артист, композитор, поэт и вокалист, и в модели с отдельными таблицами он размножится в четыре несинхронизированные записи.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Ваша сущность</th><th>В модели</th><th>Что важно</th></tr></thead>
+      <tbody>
+        <tr><td><b>Артист</b></td><td class="mono">Artist</td><td>Творческая единица: человек, группа, оркестр, псевдоним или проект. Отдельно от <span class="mono">Person</span> — физлица. Один человек может стоять за пятью артистами, и наоборот.</td></tr>
+        <tr><td><b>Трек</b></td><td class="mono">Work → <b>Track</b> → Recording</td><td>Раскладывается на три. <span class="mono">Track</span> — ваша родительская сущность.</td></tr>
+        <tr><td><b>Альбом</b></td><td class="mono">Album → Edition</td><td>Тот же паттерн «родитель → версии»: альбом и его издания (Deluxe, ремастер, юбилейное).</td></tr>
+        <tr><td><b>Сборник</b></td><td class="mono">Album (type=compilation)</td><td>Не отдельная таблица, а тип релиза. Отличие от плейлиста — у сборника есть лейбл, UPC и права; он часть дискографии.</td></tr>
+        <tr><td><b>Плейлист</b></td><td class="mono">Playlist + Station</td><td>Четыре подтипа: редакционный, пользовательский, алгоритмический, авто‑генерируемый. Бесконечный поток — это <span class="mono">Station</span>, не плейлист.</td></tr>
+        <tr><td><b>Композитор</b></td><td class="mono">Credit(role=composer) → Work</td><td>Роль на уровне произведения. Страница композитора — это витрина поверх кредитов, а не таблица.</td></tr>
+        <tr><td><b>Поэт</b></td><td class="mono">Credit(role=lyricist) → Work</td><td>Там же. Плюс роли переводчика и автора адаптации — для локализованных версий.</td></tr>
+        <tr><td><b>Музыканты</b></td><td class="mono">Credit(role=performer) → Recording</td><td>Привязка к <em>записи</em>, а не к треку: на концертнике 2003 года состав другой, чем в студии 1994‑го. Плюс <span class="mono">instrument</span> в кредите.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Правило уровня привязки</span>
+    <p>Кредит всегда крепится к тому уровню, на котором его вклад реально существует. Написал — <b>Произведение</b>. Сыграл, спродюсировал, свёл — <b>Запись</b>. Оформил обложку, издал — <b>Релиз</b>. Ошибка уровня — самая частая причина, почему в продукте потом невозможно построить страницу «этот барабанщик играл ещё вот здесь».</p>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="map">
+  <div class="sec-head">
+    <p class="kicker">03 · Общая картина</p>
+    <h2>Что цепляется к позвоночнику</h2>
+    <p>Шесть семейств сущностей вокруг связки Трек↔Запись. Цвет семейства используется дальше в спецификации.</p>
+  </div>
+
+  <figure>
+    <div class="scroller">
+      <svg viewBox="0 0 1200 630" role="img" aria-labelledby="d2t">
+        <title id="d2t">Шесть семейств сущностей вокруг ядра «Трек и Запись»</title>
+        <defs>
+          <marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--border-strong)"/>
+          </marker>
+        </defs>
+
+        <!-- work above -->
+        <rect class="svg-box" x="500" y="34" width="200" height="56" rx="7" stroke="var(--f-work)"/>
+        <text class="svg-title" x="600" y="58" text-anchor="middle" font-size="14">Произведение</text>
+        <text class="svg-tag" x="600" y="78" text-anchor="middle">Work · ISWC</text>
+        <path class="svg-line" d="M600 90 V138" marker-end="url(#ah2)"/>
+
+        <!-- spine -->
+        <rect x="480" y="140" width="240" height="380" rx="10" fill="var(--surface-2)" stroke="var(--f-work)" stroke-width="2"/>
+        <text class="svg-lbl" x="600" y="166" text-anchor="middle" fill="var(--f-work)">Ядро каталога</text>
+        <rect class="svg-box" x="500" y="182" width="200" height="94" rx="7"/>
+        <text class="svg-title" x="600" y="210" text-anchor="middle" font-size="14">Трек</text>
+        <text class="svg-sub" x="600" y="232" text-anchor="middle" font-size="12">прочтение артиста</text>
+        <text class="svg-tag" x="600" y="254" text-anchor="middle">родитель версий</text>
+        <path class="svg-line" d="M600 276 V306" marker-end="url(#ah2)"/>
+        <rect class="svg-box" x="500" y="308" width="200" height="94" rx="7"/>
+        <text class="svg-title" x="600" y="336" text-anchor="middle" font-size="14">Запись</text>
+        <text class="svg-sub" x="600" y="358" text-anchor="middle" font-size="12">версия · ISRC</text>
+        <text class="svg-tag" x="600" y="380" text-anchor="middle">это играет</text>
+        <rect x="500" y="424" width="200" height="72" rx="7" fill="var(--accent-soft)" stroke="var(--accent)" stroke-dasharray="4 3"/>
+        <text class="svg-tag" x="600" y="450" text-anchor="middle" fill="var(--accent-ink)">default_recording</text>
+        <text class="svg-sub" x="600" y="472" text-anchor="middle" font-size="12" fill="var(--accent-ink)">что запустит Play</text>
+
+        <!-- LEFT boxes -->
+        <rect class="svg-box" x="60" y="120" width="300" height="130" rx="8" stroke="var(--f-people)"/>
+        <rect x="60" y="120" width="4" height="130" fill="var(--f-people)"/>
+        <text class="svg-title" x="82" y="148" fill="var(--f-people)">Люди и роли</text>
+        <text class="svg-sub" x="82" y="172" font-size="12.5">Person · Artist · Credit · Role</text>
+        <text class="svg-sub" x="82" y="192" font-size="12.5">ArtistMembership — состав</text>
+        <text class="svg-sub" x="82" y="212" font-size="12.5">ArtistRelation — псевдонимы,</text>
+        <text class="svg-sub" x="82" y="230" font-size="12.5">сайд-проекты, влияния</text>
+        <path class="svg-line" d="M360 185 H478" marker-end="url(#ah2)"/>
+        <text class="svg-tag" x="419" y="176" text-anchor="middle">кредиты</text>
+
+        <rect class="svg-box" x="60" y="270" width="300" height="130" rx="8" stroke="var(--f-context)"/>
+        <rect x="60" y="270" width="4" height="130" fill="var(--f-context)"/>
+        <text class="svg-title" x="82" y="298" fill="var(--f-context)">Контекст записи</text>
+        <text class="svg-sub" x="82" y="322" font-size="12.5">Event · Tour · Venue</text>
+        <text class="svg-sub" x="82" y="342" font-size="12.5">Session · Studio · Label</text>
+        <text class="svg-sub" x="82" y="362" font-size="12.5">даёт «Live at Wembley '86»</text>
+        <text class="svg-sub" x="82" y="382" font-size="12.5">как точку входа</text>
+        <path class="svg-line" d="M360 335 H478" marker-end="url(#ah2)"/>
+        <text class="svg-tag" x="419" y="326" text-anchor="middle">где и когда</text>
+
+        <rect class="svg-box" x="60" y="420" width="300" height="130" rx="8" stroke="var(--f-curation)"/>
+        <rect x="60" y="420" width="4" height="130" fill="var(--f-curation)"/>
+        <text class="svg-title" x="82" y="448" fill="var(--f-curation)">Смыслы</text>
+        <text class="svg-sub" x="82" y="472" font-size="12.5">Tag: жанр · настроение</text>
+        <text class="svg-sub" x="82" y="492" font-size="12.5">активность · эпоха · язык</text>
+        <text class="svg-sub" x="82" y="512" font-size="12.5">Lyrics — текст и тайминг</text>
+        <text class="svg-sub" x="82" y="532" font-size="12.5">источник: редакция / ML / юзер</text>
+        <path class="svg-line" d="M360 485 H478" marker-end="url(#ah2)"/>
+        <text class="svg-tag" x="419" y="476" text-anchor="middle">описывают</text>
+
+        <!-- RIGHT boxes -->
+        <rect class="svg-box" x="840" y="120" width="300" height="130" rx="8" stroke="var(--f-release)"/>
+        <rect x="1136" y="120" width="4" height="130" fill="var(--f-release)"/>
+        <text class="svg-title" x="862" y="148" fill="var(--f-release)">Релизы</text>
+        <text class="svg-sub" x="862" y="172" font-size="12.5">Album → Edition → ReleaseTrack</text>
+        <text class="svg-sub" x="862" y="192" font-size="12.5">альбом · сингл · EP</text>
+        <text class="svg-sub" x="862" y="212" font-size="12.5">сборник · саундтрек · концертник</text>
+        <text class="svg-sub" x="862" y="230" font-size="12.5">позиция, диск, бонус-трек</text>
+        <path class="svg-line" d="M840 185 H722" marker-end="url(#ah2)"/>
+        <text class="svg-tag" x="781" y="176" text-anchor="middle">содержат</text>
+
+        <rect class="svg-box" x="840" y="270" width="300" height="130" rx="8" stroke="var(--f-curation)"/>
+        <rect x="1136" y="270" width="4" height="130" fill="var(--f-curation)"/>
+        <text class="svg-title" x="862" y="298" fill="var(--f-curation)">Курирование</text>
+        <text class="svg-sub" x="862" y="322" font-size="12.5">Playlist → PlaylistItem</text>
+        <text class="svg-sub" x="862" y="342" font-size="12.5">Station — бесконечный поток</text>
+        <text class="svg-sub" x="862" y="362" font-size="12.5">Chart — чарты</text>
+        <text class="svg-sub" x="862" y="382" font-size="12.5">Shelf — полки витрины</text>
+        <path class="svg-line" d="M840 335 H722" marker-end="url(#ah2)"/>
+        <text class="svg-tag" x="781" y="326" text-anchor="middle">ссылаются</text>
+
+        <rect class="svg-box" x="840" y="420" width="300" height="130" rx="8" stroke="var(--f-user)"/>
+        <rect x="1136" y="420" width="4" height="130" fill="var(--f-user)"/>
+        <text class="svg-title" x="862" y="448" fill="var(--f-user)">Потребление</text>
+        <text class="svg-sub" x="862" y="472" font-size="12.5">User · LibraryItem · Follow</text>
+        <text class="svg-sub" x="862" y="492" font-size="12.5">PlayEvent — с точкой входа</text>
+        <text class="svg-sub" x="862" y="512" font-size="12.5">TasteProfile</text>
+        <text class="svg-sub" x="862" y="532" font-size="12.5">лайк → трек, плей → запись</text>
+        <path class="svg-line" d="M840 485 H722" marker-end="url(#ah2)"/>
+        <text class="svg-tag" x="781" y="476" text-anchor="middle">измеряют</text>
+      </svg>
+    </div>
+    <figcaption><b>Асимметрия, которую легко потерять.</b> Релизы и плейлисты ссылаются на <em>Запись</em> — иначе сборник не сможет содержать именно концертную версию, а плейлист перестанет воспроизводиться одинаково. Библиотека и подписки ссылаются на <em>Трек</em> и <em>Артиста</em>. Кредиты распределены по всем трём уровням ядра.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="spec">
+  <div class="sec-head">
+    <p class="kicker">04 · Поля и связи</p>
+    <h2>Спецификация сущностей</h2>
+    <p>Курсивом — комментарий к полю. Перечислены значимые поля, а не полный набор служебных (id, timestamps, источник данных подразумеваются везде).</p>
+  </div>
+
+  <div class="family" style="--fam:var(--f-work)">
+    <div class="family-head"><h3>Ядро каталога</h3><span class="who">то, что звучит</span></div>
+
+    <div class="card">
+      <h4>Произведение<span class="lat">Work</span></h4>
+      <p>Абстрактная композиция. Существует, даже если ни разу не записана. Держит авторские права и объединяет все каверы всех артистов.</p>
+      <div class="fields">
+        <div><b>iswc</b> <i>международный код произведения</i></div>
+        <div><b>title_canonical</b> <i>каноническое название</i></div>
+        <div><b>alt_titles[]</b> <i>варианты и переводы</i></div>
+        <div><b>language_original</b> <i>язык оригинального текста</i></div>
+        <div><b>year_written</b> <i>год написания</i></div>
+        <div><b>work_type</b> <i>песня · инструментал · классика · попурри</i></div>
+        <div><b>parent_work_id</b> <i>для частей сюиты и классических циклов</i></div>
+        <div><b>original_track_id</b> <i>эталонное прочтение</i></div>
+        <div><b>derived_from_work_id</b> <i>сэмпл, интерполяция, перевод</i></div>
+        <div><b>is_public_domain</b> <i>влияет на UGC и караоке</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Трек<span class="lat">Track — родительская сущность</span></h4>
+      <p>Прочтение произведения конкретным артистом. Контейнер всех версий: студийной, концертной, старой записи, ремастера, перезаписи. Единица, которую пользователь считает «песней».</p>
+      <div class="fields">
+        <div><b>work_id</b> <i>→ Произведение</i></div>
+        <div><b>primary_artist_id</b> <i>→ Артист</i></div>
+        <div><b>title_display</b> <i>как показывать в интерфейсе</i></div>
+        <div><b>first_release_date</b> <i>дата появления прочтения</i></div>
+        <div><b>is_cover_of_track_id</b> <i>→ Трек, с которого сделан кавер</i></div>
+        <div><b>cover_type</b> <i>кавер · трибьют · перевод · перезапись</i></div>
+        <div><b>default_recording_id</b> <i>вычисляется на рынок, см. §06</i></div>
+        <div><b>popularity_rollup</b> <i>сумма по всем версиям</i></div>
+        <div><b>saves_rollup</b> <i>лайки крепятся сюда</i></div>
+        <div><b>versions_count</b> <i>драйвер блока «все версии»</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Запись<span class="lat">Recording</span></h4>
+      <p>Конкретная фонограмма. Единственная сущность, которую можно воспроизвести. Всё, что различает версии, живёт здесь.</p>
+      <div class="fields">
+        <div><b>track_id</b> <i>→ Трек</i></div>
+        <div><b>isrc</b> <i>международный код записи</i></div>
+        <div><b>version_type</b> <i>перечисление, см. §05</i></div>
+        <div><b>version_label</b> <i>«Live at Wembley, 1986»</i></div>
+        <div><b>duration_ms</b> <i>длительность</i></div>
+        <div><b>recorded_at</b> <i>дата записи — отдельно от даты выпуска</i></div>
+        <div><b>released_at</b> <i>дата первой публикации</i></div>
+        <div><b>is_live · is_instrumental · is_explicit</b> <i>быстрые фильтры</i></div>
+        <div><b>language</b> <i>язык вокала, может отличаться от произведения</i></div>
+        <div><b>bpm · key · loudness · energy</b> <i>для подбора и радио</i></div>
+        <div><b>remix_of_recording_id</b> <i>ремикс — производная записи</i></div>
+        <div><b>remaster_of_recording_id</b> <i>тот же дубль, новый мастер</i></div>
+        <div><b>event_id</b> <i>→ Концерт, для лайв-версий</i></div>
+        <div><b>session_id · studio_id</b> <i>→ Сессия, Студия</i></div>
+        <div><b>catalog_visibility</b> <i>primary · secondary · hidden</i></div>
+        <div><b>availability[]</b> <i>территория × тариф × окно</i></div>
+        <div><b>audio_qualities[]</b> <i>lossless, hi-res, spatial</i></div>
+        <div><b>has_synced_lyrics · has_video</b> <i>драйверы фич</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="family" style="--fam:var(--f-release)">
+    <div class="family-head"><h3>Релизы</h3><span class="who">альбом, сборник, сингл</span></div>
+
+    <div class="card">
+      <h4>Альбом<span class="lat">Album — группа изданий</span></h4>
+      <p>То, что пользователь называет альбомом. Тот же паттерн «родитель → версии», что и у трека: одна карточка в интерфейсе, несколько физических изданий под ней.</p>
+      <div class="fields">
+        <div><b>primary_artist_id</b> <i>или флаг «сборная солянка»</i></div>
+        <div><b>title</b> <i>название</i></div>
+        <div><b>album_type</b> <i>альбом · EP · сингл · <b>сборник</b> · концертник · саундтрек · микстейп</i></div>
+        <div><b>is_various_artists</b> <i>ключ для сборников</i></div>
+        <div><b>compilation_kind</b> <i>greatest hits · тематический · лейбловый · саундтрек</i></div>
+        <div><b>first_release_date</b> <i>дата оригинального выпуска</i></div>
+        <div><b>default_edition_id</b> <i>какое издание показывать</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Издание<span class="lat">Edition</span></h4>
+      <p>Конкретный выпуск: оригинал, Deluxe, ремастер, юбилейное, региональное. Именно у издания есть UPC, лейбл и обложка.</p>
+      <div class="fields">
+        <div><b>album_id</b> <i>→ Альбом</i></div>
+        <div><b>upc</b> <i>код издания</i></div>
+        <div><b>edition_label</b> <i>«Deluxe», «10th Anniversary»</i></div>
+        <div><b>released_at · territory</b> <i>дата и рынок</i></div>
+        <div><b>label_id</b> <i>→ Лейбл</i></div>
+        <div><b>cover_art · total_discs</b> <i>оформление и структура</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Трек в издании<span class="lat">ReleaseTrack</span></h4>
+      <p>Связка «издание ↔ запись». Ссылается на <b>Запись</b>, а не на Трек — иначе сборник не сможет содержать именно концертную версию, а Deluxe‑издание не отличить от оригинала.</p>
+      <div class="fields">
+        <div><b>edition_id + recording_id</b> <i>связка</i></div>
+        <div><b>disc_no · position</b> <i>порядок</i></div>
+        <div><b>is_bonus · is_hidden</b> <i>бонусы и скрытые треки</i></div>
+        <div><b>display_artist</b> <i>переопределение для сборников</i></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="lbl">Сборник vs плейлист</span>
+      <p>Оба — упорядоченные коллекции. Различает их <b>наличие прав и издателя</b>: сборник — это релиз с UPC и лейблом, он неизменен, входит в дискографию и попадает в чарты альбомов. Плейлист — курируемая подборка без прав на выпуск, он живой и переупорядочиваемый. Слить их в одну таблицу заманчиво, но тогда ломается дискография артиста и отчётность по релизам.</p>
+    </div>
+  </div>
+
+  <div class="family" style="--fam:var(--f-people)">
+    <div class="family-head"><h3>Люди и роли</h3><span class="who">артист, композитор, поэт, музыканты</span></div>
+
+    <div class="card">
+      <h4>Человек<span class="lat">Person</span></h4>
+      <p>Физическое лицо. Нужен отдельно от Артиста, чтобы «Кёртис Джеймс Джексон III» был одним человеком за 50 Cent, а Дэймон Албарн связывался и с Blur, и с Gorillaz.</p>
+      <div class="fields">
+        <div><b>legal_name · sort_name</b> <i>имя</i></div>
+        <div><b>born_at · died_at</b> <i>для биографии и прав</i></div>
+        <div><b>country · ipi</b> <i>страна, код правообладателя</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Артист<span class="lat">Artist</span></h4>
+      <p>Творческая единица, у которой есть страница в продукте: сольник, группа, дуэт, оркестр, псевдоним, проект.</p>
+      <div class="fields">
+        <div><b>name · disambiguation</b> <i>имя и уточнение для тёзок</i></div>
+        <div><b>artist_type</b> <i>person · band · duo · orchestra · project · alias</i></div>
+        <div><b>formed_at · disbanded_at · country</b> <i>биография</i></div>
+        <div><b>parent_artist_id</b> <i>для псевдонимов и сайд-проектов</i></div>
+        <div><b>is_verified · images · bio</b> <i>витрина</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Состав и связи<span class="lat">ArtistMembership · ArtistRelation</span></h4>
+      <p>Состав с датами — это то, что делает возможным честный ответ «кто играл на этой записи». Связи между артистами — топливо для навигации «похожие» и «откуда он взялся».</p>
+      <div class="fields">
+        <div><b>artist_id + person_id</b> <i>кто в группе</i></div>
+        <div><b>roles[] · from · to</b> <i>роль и период</i></div>
+        <div><b>relation_type</b> <i>участник · псевдоним · сайд-проект · коллаборация · преемник · влияние</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Кредит<span class="lat">Credit — здесь живут композитор, поэт и музыканты</span></h4>
+      <p>Полиморфная связь «кто → что сделал → над чем». Одна таблица вместо трёх сущностей из вашего списка. Страницы «Композитор X» и «Барабанщик Y» строятся как выборки из неё.</p>
+      <div class="fields">
+        <div><b>contributor_ref</b> <i>person_id или artist_id</i></div>
+        <div><b>target_type + target_id</b> <i>work · track · recording · edition</i></div>
+        <div><b>role_id</b> <i>→ Роль</i></div>
+        <div><b>instrument</b> <i>для исполнительских ролей</i></div>
+        <div><b>is_primary · is_featured</b> <i>основной артист / фит</i></div>
+        <div><b>sort_order</b> <i>порядок в титрах</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Роль<span class="lat">Role</span></h4>
+      <p>Справочник с обязательным уровнем привязки — он не даёт повесить «гитарист» на произведение, а «композитор» на конкретный мастеринг.</p>
+      <div class="fields">
+        <div><b>category=writing</b> <i>композитор · поэт · аранжировщик · переводчик</i></div>
+        <div><b>category=performance</b> <i>вокал · инструмент · дирижёр · фит</i></div>
+        <div><b>category=production</b> <i>продюсер · сведение · мастеринг · звукорежиссёр</i></div>
+        <div><b>applies_to_level</b> <i>work · track · recording · edition</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="family" style="--fam:var(--f-curation)">
+    <div class="family-head"><h3>Курирование</h3><span class="who">плейлисты, радио, чарты, витрина</span></div>
+
+    <div class="card">
+      <h4>Плейлист<span class="lat">Playlist</span></h4>
+      <p>Одна таблица, четыре продуктовых подтипа с разной механикой обновления. Смешивать их в UI можно, в модели — нельзя: у них разные владельцы, права на редактирование и логика пересборки.</p>
+      <div class="fields">
+        <div><b>playlist_type</b> <i>editorial · user · algorithmic · auto</i></div>
+        <div><b>owner_ref</b> <i>пользователь или редакция</i></div>
+        <div><b>title · description · cover</b> <i>витрина</i></div>
+        <div><b>visibility</b> <i>приватный · по ссылке · публичный</i></div>
+        <div><b>is_collaborative</b> <i>совместное редактирование</i></div>
+        <div><b>is_dynamic · refresh_policy</b> <i>для алгоритмических</i></div>
+        <div><b>seed_refs[]</b> <i>от чего оттолкнулись</i></div>
+        <div><b>ruleset</b> <i>для умных плейлистов по правилам</i></div>
+        <div><b>markets[] · editorial_slot</b> <i>таргетинг и место на витрине</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Элемент плейлиста<span class="lat">PlaylistItem</span></h4>
+      <p>Ссылается на <b>Запись</b>. Если сослаться на Трек, плейлист однажды заиграет ремастером вместо оригинала — и это будет восприниматься как баг.</p>
+      <div class="fields">
+        <div><b>playlist_id + recording_id</b> <i>связка</i></div>
+        <div><b>position · added_by · added_at</b> <i>порядок и авторство</i></div>
+        <div><b>version_locked</b> <i>запрет автозамены версии</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Станция, чарт, полка<span class="lat">Station · Chart · Shelf</span></h4>
+      <p><b>Станция</b> — бесконечный поток от сида, не имеет фиксированного списка. <b>Чарт</b> — рейтинг за период. <b>Полка</b> — управляемый блок витрины: именно она превращает модель данных в информационную архитектуру главного экрана.</p>
+      <div class="fields">
+        <div><b>Station.seed_ref</b> <i>артист · трек · жанр · вкус пользователя</i></div>
+        <div><b>Chart.scope · period</b> <i>мир · страна · город × день/неделя</i></div>
+        <div><b>Shelf.surface · rule</b> <i>экран и правило наполнения</i></div>
+        <div><b>Shelf.item_refs[]</b> <i>полиморфные карточки</i></div>
+        <div><b>Shelf.audience · slot_priority</b> <i>кому и в каком порядке</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="family" style="--fam:var(--f-context)">
+    <div class="family-head"><h3>Контекст и смыслы</h3><span class="who">откуда версия и о чём она</span></div>
+
+    <div class="card">
+      <h4>Событие, тур, площадка, сессия<span class="lat">Event · Tour · Venue · Session · Studio · Label</span></h4>
+      <p>Это то, что превращает вашу «концертную запись» из технического флага в точку входа. Появляются экраны «Все записи с этого концерта», «Тур 1986 года», «Записано на Abbey Road».</p>
+      <div class="fields">
+        <div><b>Event: date · venue_id · tour_id</b> <i>концерт</i></div>
+        <div><b>Event.setlist[]</b> <i>→ Треки, даже если записи нет</i></div>
+        <div><b>Session: date_range · studio_id</b> <i>студийная сессия</i></div>
+        <div><b>Session.personnel[]</b> <i>кто был в комнате</i></div>
+        <div><b>Label: name · parent_label_id</b> <i>лейбл и мейджор</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Тег<span class="lat">Tag · TagAssignment</span></h4>
+      <p>Единая таксономия с указанием уровня привязки и источника. Источник критичен: редакторский жанр и ML‑настроение нельзя показывать одинаково и нельзя чинить одинаково.</p>
+      <div class="fields">
+        <div><b>taxonomy</b> <i>жанр · поджанр · настроение · активность · эпоха · инструмент · тема · язык</i></div>
+        <div><b>target_type</b> <i>work · track · recording · album · artist</i></div>
+        <div><b>source</b> <i>editorial · ml · label · user</i></div>
+        <div><b>confidence · weight</b> <i>вес в подборе</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Текст<span class="lat">Lyrics</span></h4>
+      <p>Привязан к <b>Записи</b>, а не к произведению: в концертной версии текст импровизируется, в радиоверсии зацензурен, в переводной — другой язык. Тайминг делает текст точкой входа через поиск по строчке.</p>
+      <div class="fields">
+        <div><b>recording_id · work_id</b> <i>двойная привязка</i></div>
+        <div><b>lines[] с таймкодами</b> <i>синхронный текст</i></div>
+        <div><b>language · is_translation</b> <i>язык и перевод</i></div>
+        <div><b>provider · rights_window</b> <i>лицензия на показ</i></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="family" style="--fam:var(--f-user)">
+    <div class="family-head"><h3>Потребление</h3><span class="who">основа для CJM</span></div>
+
+    <div class="card">
+      <h4>Библиотека и подписки<span class="lat">LibraryItem · Follow</span></h4>
+      <p>Полиморфная привязка. Обратите внимание на уровни: лайк песни — на Трек, сохранение альбома — на Альбом, подписка — на Артиста или Плейлист.</p>
+      <div class="fields">
+        <div><b>user_id + ref_type + ref_id</b> <i>что сохранено</i></div>
+        <div><b>ref_type</b> <i>track · album · playlist · artist · recording</i></div>
+        <div><b>added_at · source_entry_point</b> <i>когда и откуда сохранил</i></div>
+        <div><b>pinned_recording_id</b> <i>«мне нравится именно эта версия»</i></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4>Событие прослушивания<span class="lat">PlayEvent</span></h4>
+      <p>Центральный факт аналитики. Денормализация до work_id обязательна: без неё нельзя ответить «сколько всего слушают эту песню во всех прочтениях».</p>
+      <div class="fields">
+        <div><b>user_id · session_id</b> <i>кто и в какой сессии</i></div>
+        <div><b>recording_id</b> <i>что реально играло</i></div>
+        <div><b>track_id · work_id</b> <i>денормализация для роллапов</i></div>
+        <div><b>context_type + context_id</b> <i>откуда играем: плейлист, альбом, радио…</i></div>
+        <div><b>entry_point</b> <i>таксономия из §07</i></div>
+        <div><b>surface · position_in_context</b> <i>экран и позиция</i></div>
+        <div><b>started_at · ms_played · completion_rate</b> <i>глубина прослушивания</i></div>
+        <div><b>is_skip · skip_at_ms · is_repeat</b> <i>сигналы вкуса</i></div>
+        <div><b>reason_start · reason_end</b> <i>клик · автоплей · шафл · конец очереди</i></div>
+        <div><b>device · is_offline</b> <i>условия</i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="versions">
+  <div class="sec-head">
+    <p class="kicker">05 · Типология</p>
+    <h2>Версия, кавер, ремикс, ремастер</h2>
+    <p>Четыре слова, которые в разговоре путают, а в модели они лежат на трёх разных уровнях. Различие определяется одним вопросом: <em>что переиспользовали</em>.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Явление</th><th>Что переиспользовано</th><th>Уровень связи</th><th>Поле</th></tr></thead>
+      <tbody>
+        <tr><td><b>Версия</b> — концертная, демо, акустика, радиоверсия</td><td>то же прочтение, другое исполнение или монтаж</td><td>внутри Трека</td><td class="mono">Recording.track_id</td></tr>
+        <tr><td><b>Ремастер</b></td><td>тот самый дубль, новая обработка</td><td>внутри Трека</td><td class="mono">remaster_of_recording_id</td></tr>
+        <tr><td><b>Ремикс</b></td><td>исходный мастер, новая аранжировка поверх</td><td>внутри Трека</td><td class="mono">remix_of_recording_id</td></tr>
+        <tr><td><b>Перезапись</b> — «Taylor's Version»</td><td>то же прочтение, заново записанное ради прав</td><td>внутри Трека</td><td class="mono">version_type=re_recording</td></tr>
+        <tr><td><b>Кавер</b></td><td>только произведение, всё исполнение новое</td><td><b>между Треками</b></td><td class="mono">Track.is_cover_of_track_id</td></tr>
+        <tr><td><b>Сэмпл, интерполяция</b></td><td>фрагмент чужого произведения или записи</td><td><b>между Произведениями</b></td><td class="mono">Work.derived_from_work_id</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Перечисление version_type</h3>
+  <p>Заводите закрытым списком с самого начала — открытая строка «версия» превращается в помойку из тысяч уникальных значений за первый же год работы с лейблами.</p>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Группа</th><th>Значения</th><th>Показывать в дискографии</th></tr></thead>
+      <tbody>
+        <tr><td><b>Основные</b></td><td class="mono">studio · single_edit · radio_edit</td><td>да, как основную</td></tr>
+        <tr><td><b>Концертные</b></td><td class="mono">live · live_session · unplugged · rehearsal</td><td>да, отдельным блоком</td></tr>
+        <tr><td><b>Архивные</b></td><td class="mono">demo · alt_take · outtake · early_version</td><td>в блоке «редкое»</td></tr>
+        <tr><td><b>Переработки</b></td><td class="mono">remaster · re_recording · remix · extended · club_mix</td><td>ремастер вместо оригинала, остальное — блоком</td></tr>
+        <tr><td><b>Служебные</b></td><td class="mono">instrumental · acapella · karaoke · clean · censored</td><td>скрыто, по фильтру</td></tr>
+        <tr><td><b>Ситуативные</b></td><td class="mono">sped_up · slowed · soundtrack_version · orchestral · acoustic</td><td>по решению редакции</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Зачем нужен catalog_visibility</span>
+    <p>Ускоренные версии, инструменталы и караоке нужны в каталоге, но не должны засорять «Топ‑треки артиста». Поле <code>catalog_visibility</code> со значениями <code>primary</code> / <code>secondary</code> / <code>hidden</code> отделяет «что в каталоге» от «что на витрине». Это одно поле снимает больше жалоб на качество каталога, чем любой алгоритм ранжирования.</p>
+  </div>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="resolve">
+  <div class="sec-head">
+    <p class="kicker">06 · Правило</p>
+    <h2>Какую версию запускает Play</h2>
+    <p>Раз у Трека много Записей, а кнопка одна, нужно явное правило разрешения. Оно должно быть кодом в одном месте, а не подразумеваться в каждом экране по‑своему.</p>
+  </div>
+
+  <ol class="steps">
+    <li><b>Версия задана контекстом</b> — играем её. Из плейлиста, издания альбома или конкретной карточки версии выбор уже сделан пользователем или куратором; переопределять его нельзя.</li>
+    <li><b>Иначе берём <code>default_recording</code> для рынка.</b> Это материализованное поле, а не вычисление на лету — иначе не воспроизвести аналитику.</li>
+    <li><b>Фильтр доступности</b> — версия лицензирована на территорию, тариф и текущее окно. Недоступные отсеиваются до всякого ранжирования.</li>
+    <li><b>Флаг редакции</b> <code>is_primary_for_track</code> — если проставлен и версия доступна, побеждает.</li>
+    <li><b>Иначе эвристика:</b> актуальный ремастер выше оригинала, студийная выше концертной, полная версия выше радиоверсии, при прочих равных — популярность за 28 дней.</li>
+    <li><b>Фолбэк</b> — любая доступная запись, с логированием: систематические фолбэки означают дыру в лицензировании, и это должно быть видно.</li>
+  </ol>
+
+  <p>Отдельное следствие для интерфейса: если у трека больше одной видимой версии, кнопка Play должна сопровождаться доступом к выбору — иначе пользователь, искавший концертник, уйдёт с ощущением, что его нет в сервисе.</p>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="entry">
+  <div class="sec-head">
+    <p class="kicker">07 · Точки входа</p>
+    <h2>Откуда начинается слушание</h2>
+    <p>Каждая точка входа — это пара «сущность, на которой стоит человек» + «что произойдёт по Play». Эта таблица одновременно задаёт контракт плеера и словарь <code>entry_point</code> в аналитике.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Точка входа</th><th>Сущность</th><th>Что играет</th><th>Порядок очереди</th></tr></thead>
+      <tbody>
+        <tr><td>Страница артиста</td><td class="mono">Artist</td><td>default_recording топ‑треков</td><td>по популярности</td></tr>
+        <tr><td>Родительский трек</td><td class="mono">Track</td><td>default_recording</td><td>дальше — радио от трека</td></tr>
+        <tr><td><b>Блок «все версии»</b></td><td class="mono">Track → Recording[]</td><td>выбранная версия</td><td>по типу и дате записи</td></tr>
+        <tr><td><b>Блок «кто ещё это пел»</b></td><td class="mono">Work → Track[]</td><td>default другого прочтения</td><td>оригинал первым, дальше популярность</td></tr>
+        <tr><td>Альбом или издание</td><td class="mono">Album · Edition</td><td>записи издания</td><td>порядок треклиста</td></tr>
+        <tr><td>Сборник</td><td class="mono">Album(compilation)</td><td>записи сборника</td><td>порядок треклиста</td></tr>
+        <tr><td>Плейлист</td><td class="mono">Playlist</td><td>записи из элементов</td><td>позиция или шафл</td></tr>
+        <tr><td>Станция и радио</td><td class="mono">Station</td><td>поток от сида</td><td>бесконечный, ML</td></tr>
+        <tr><td>Чарт</td><td class="mono">Chart</td><td>записи позиций</td><td>по позиции</td></tr>
+        <tr><td><b>Кредит</b> — композитор, поэт, музыкант</td><td class="mono">Credit → Work · Recording</td><td>автосборка «всё, где он участвовал»</td><td>хронология или популярность</td></tr>
+        <tr><td><b>Концерт, тур, сессия</b></td><td class="mono">Event · Session</td><td>записи события</td><td>сетлист</td></tr>
+        <tr><td>Текст песни</td><td class="mono">Lyrics</td><td>запись с этого таймкода</td><td>—</td></tr>
+        <tr><td>Тег: жанр, настроение, эпоха</td><td class="mono">Tag</td><td>станция по тегу</td><td>ML</td></tr>
+        <tr><td>Библиотека и история</td><td class="mono">LibraryItem</td><td>сохранённое, с учётом pinned‑версии</td><td>дата добавления</td></tr>
+        <tr><td>Внешняя ссылка и шеринг</td><td class="mono">любая сущность</td><td>по её правилу</td><td>по её правилу</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Проектное следствие</span>
+    <p>Четыре точки входа из этого списка — «все версии», «кто ещё это пел», «кредит» и «концерт» — <b>не существуют в плоской модели каталога</b>. Они появляются ровно потому, что вы разделили произведение, трек и запись и вынесли кредиты и контекст в отдельные сущности. Это и есть продуктовая отдача от усложнения схемы: четыре новых способа провалиться вглубь каталога вместо перебора плейлистов.</p>
+  </div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section id="ia">
+  <div class="sec-head">
+    <p class="kicker">08 · Интерфейс</p>
+    <h2>Экраны и их сущности</h2>
+    <p>Прямая проекция модели на информационную архитектуру. Если блок на экране не выводится из связи в схеме — либо в схеме дырка, либо блок держится на ручном контенте и не масштабируется.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Экран</th><th>Ядро</th><th>Блоки и откуда они берутся</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Артист</b></td><td class="mono">Artist</td>
+          <td>Топ‑треки <span class="mono">Track[]</span> · Дискография <span class="mono">Album[]</span> с фильтром по типу · Синглы · <b>Концертные записи</b> <span class="mono">Recording(is_live)</span> · Появления <span class="mono">Credit</span> на чужих записях · Состав <span class="mono">ArtistMembership</span> · Похожие <span class="mono">ArtistRelation</span> · Радио</td>
+        </tr>
+        <tr>
+          <td><b>Трек</b> (родительский)</td><td class="mono">Track</td>
+          <td>Play → default версия · <b>Все версии</b> <span class="mono">Recording[]</span>, сгруппированные по <span class="mono">version_type</span> · <b>Каверы</b> <span class="mono">Work → Track[]</span> · Авторы <span class="mono">Credit(work)</span> · Музыканты <span class="mono">Credit(recording)</span> · Текст · На каких релизах звучит · В каких плейлистах</td>
+        </tr>
+        <tr>
+          <td><b>Версия</b></td><td class="mono">Recording</td>
+          <td>Где и когда записано <span class="mono">Event · Session · Studio</span> · Состав именно этой записи · Другие версии трека · Ремиксы</td>
+        </tr>
+        <tr>
+          <td><b>Произведение</b></td><td class="mono">Work</td>
+          <td>Оригинал · Все прочтения всех артистов · Авторы · Что сэмплировало · Хронология исполнений. Может быть скрыто в MVP, но связь нужна сразу</td>
+        </tr>
+        <tr>
+          <td><b>Альбом</b></td><td class="mono">Album</td>
+          <td>Треклист <span class="mono">ReleaseTrack</span> · Переключатель изданий <span class="mono">Edition[]</span> · Кредиты релиза · Лейбл</td>
+        </tr>
+        <tr>
+          <td><b>Сборник</b></td><td class="mono">Album(compilation)</td>
+          <td>Треклист с обязательным показом артиста в строке · Составитель · Переход к альбому‑источнику каждой записи</td>
+        </tr>
+        <tr>
+          <td><b>Плейлист</b></td><td class="mono">Playlist</td>
+          <td>Элементы · Автор и обложка · Для алгоритмических — объяснение «почему это здесь» из <span class="mono">seed_refs</span> · Похожие плейлисты</td>
+        </tr>
+        <tr>
+          <td><b>Кредит</b></td><td class="mono">Person · Role</td>
+          <td>Страница композитора, поэта, продюсера, сессионного музыканта: всё, где человек отметился, с разбивкой по ролям</td>
+        </tr>
+        <tr>
+          <td><b>Главная</b></td><td class="mono">Shelf[]</td>
+          <td>Полки как сущности, а не как вёрстка: правило наполнения, аудитория, приоритет слота — всё редактируемо без релиза приложения</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="cjm">
+  <div class="sec-head">
+    <p class="kicker">09 · Исследование</p>
+    <h2>CJM и разметка событий</h2>
+    <p>Шесть стадий пути к музыке. Для каждой — сущность, которая её обслуживает, и событие, без которого стадию нельзя измерить. Разметка вводится вместе со схемой, а не после запуска.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Стадия</th><th>Что делает человек</th><th>Сущности</th><th>Событие и метрика</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Повод</b></td><td>«хочу что‑то под настроение / под задачу»</td>
+          <td class="mono">Tag · Shelf · Station</td>
+          <td>показ полки → клик. <em>CTR полки, доля сессий, начатых не с поиска</em></td>
+        </tr>
+        <tr>
+          <td><b>Ориентирование</b></td><td>ищет знакомое или разбирается, кто это</td>
+          <td class="mono">Artist · Work · Track · Chart</td>
+          <td>переход на карточку. <em>Глубина навигации до первого плея</em></td>
+        </tr>
+        <tr>
+          <td><b>Выбор версии</b></td><td>«мне нужна та, концертная»</td>
+          <td class="mono">Recording · version_type</td>
+          <td>открытие «все версии», смена версии. <em>Доля плеев не по умолчанию — прямой замер спроса на вашу родительскую сущность</em></td>
+        </tr>
+        <tr>
+          <td><b>Погружение</b></td><td>читает текст, смотрит, кто играл, идёт по кредитам</td>
+          <td class="mono">Lyrics · Credit · Event · Album</td>
+          <td>раскрытие блока, переход по кредиту. <em>Доля сессий с уходом вглубь</em></td>
+        </tr>
+        <tr>
+          <td><b>Присвоение</b></td><td>лайкает, добавляет, подписывается</td>
+          <td class="mono">LibraryItem · Playlist · Follow</td>
+          <td>сохранение с <span class="mono">source_entry_point</span>. <em>Конверсия точки входа в сохранение</em></td>
+        </tr>
+        <tr>
+          <td><b>Возврат</b></td><td>приходит снова за тем же и рядом стоящим</td>
+          <td class="mono">History · TasteProfile · Station</td>
+          <td>повторный плей. <em>Доля возвратов к треку через 7 дней</em></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Три среза, которые даёт трёхуровневая модель</h3>
+  <ul>
+    <li><b>Спрос на версии.</b> Отношение плеев не‑дефолтной версии к общему числу по треку. Показывает, где родительская сущность реально работает: у каких артистов и жанров люди осознанно ищут концертник или демо.</li>
+    <li><b>Жизнь произведения.</b> Плеи, свёрнутые до <code>work_id</code>: видно, что кавер приносит слушателей оригиналу, и можно измерить эффект попадания песни в фильм или тренд.</li>
+    <li><b>Продуктивность точек входа.</b> Разложение плеев по <code>entry_point</code> с конверсией в сохранение. Это единственный способ честно сравнить «страницу артиста» с «полкой на главной» и понять, что вообще стоит развивать.</li>
+  </ul>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="open">
+  <div class="sec-head">
+    <p class="kicker">10 · Развилки</p>
+    <h2>Решения, которые лучше принять сейчас</h2>
+    <p>Каждое из них дёшево заложить на этапе схемы и очень дорого менять после запуска.</p>
+  </div>
+
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Вопрос</th><th>Рекомендация</th><th>Цена ошибки</th></tr></thead>
+      <tbody>
+        <tr><td>Лайк — на трек или на версию?</td><td>На <b>Трек</b>, с необязательным <span class="mono">pinned_recording_id</span></td><td>Лайк на ремастере не виден на оригинале; библиотека выглядит дублированной</td></tr>
+        <tr><td>Показывать ли Произведение в интерфейсе?</td><td>Связь завести сразу, экран — позже</td><td>Ретроспективно связать каверы почти невозможно: нужен ручной разбор каталога</td></tr>
+        <tr><td>Дубли одной фонограммы с разными ISRC от разных дистрибьюторов</td><td>Слой сопоставления и склейки с ручной модерацией — с первого дня</td><td>Самая частая жалоба на качество каталога и главный источник размытой статистики</td></tr>
+        <tr><td>Классика: кто «артист» — композитор, дирижёр или оркестр?</td><td>Композитор — <span class="mono">Credit(work)</span>, витрина — отдельная логика для academic‑жанров</td><td>Классический каталог становится неюзабельным; это отдельный проект, но модель должна его допускать</td></tr>
+        <tr><td>Медли, мэшапы, попурри</td><td>Связь Запись↔Произведение как многие‑ко‑многим</td><td>Неверные авторские отчисления и потерянные каверы</td></tr>
+        <tr><td>Ускоренные и замедленные версии</td><td>Отдельные Записи с <span class="mono">catalog_visibility=secondary</span></td><td>Либо засоряют дискографию, либо теряется реальный трафик из соцсетей</td></tr>
+        <tr><td>Кто хозяин <span class="mono">default_recording</span> — редакция или алгоритм?</td><td>Алгоритм по умолчанию, редакторский флаг перебивает</td><td>Без ручного перебивания невозможно исправить очевидные ошибки, без алгоритма — не масштабируется</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="phasing">
+  <div class="sec-head">
+    <p class="kicker">11 · Приоритеты</p>
+    <h2>Что резать в MVP</h2>
+    <p>Правило разреза: <b>связи закладываются все сразу, экраны — по мере надобности</b>. Связь, не заведённую с самого начала, потом придётся восстанавливать ручным разбором каталога.</p>
+  </div>
+
+  <h3>Обязательно в первой версии</h3>
+  <ul>
+    <li>Три уровня ядра: Произведение, Трек, Запись — даже если Произведение нигде не показывается</li>
+    <li><code>version_type</code>, <code>catalog_visibility</code>, <code>default_recording_id</code></li>
+    <li><code>Track.is_cover_of_track_id</code></li>
+    <li>Альбом → Издание → Трек в издании, со ссылкой на Запись</li>
+    <li>Credit с уровнем привязки и Role с ограничением уровня</li>
+    <li>Person отдельно от Artist</li>
+    <li><code>entry_point</code> и <code>context_type</code> в PlayEvent</li>
+  </ul>
+
+  <h3>Можно отложить</h3>
+  <ul>
+    <li>Экраны Произведения и Кредита — связи есть, витрина позже</li>
+    <li>Event, Tour, Venue, Session — на старте достаточно текстового <code>version_label</code></li>
+    <li>Станции по тегам, умные плейлисты по правилам</li>
+    <li>Полки как редактируемые сущности — первая витрина может быть захардкожена</li>
+    <li>Совместные плейлисты, переводы текстов</li>
+  </ul>
+
+  <h3>Чего не делать никогда</h3>
+  <ul>
+    <li>Не хранить версию строкой в названии трека — «Song (Live 1994 Remastered)» не парсится обратно</li>
+    <li>Не заводить отдельные таблицы для композитора, поэта и музыканта</li>
+    <li>Не ссылаться из плейлиста и релиза на Трек вместо Записи</li>
+    <li>Не делать сборник подвидом плейлиста</li>
+  </ul>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="ddl">
+  <div class="sec-head">
+    <p class="kicker">12 · Приложение</p>
+    <h2>Набросок DDL</h2>
+    <p>Сокращённо, PostgreSQL — чтобы связи из схемы можно было сразу проверить на реальных данных. Индексы, партиционирование событий и служебные поля опущены.</p>
+  </div>
+
+  <details>
+    <summary>Ядро каталога, релизы и кредиты</summary>
+<pre><code>-- L0 ------------------------------------------------------------
+CREATE TABLE work (
+  id              uuid PRIMARY KEY,
+  iswc            text UNIQUE,
+  title_canonical text NOT NULL,
+  language_original text,
+  year_written    int,
+  work_type       text NOT NULL,          -- song | instrumental | classical | medley
+  parent_work_id  uuid REFERENCES work(id),
+  original_track_id uuid,                 -- FK на track, ставится отложенно
+  derived_from_work_id uuid REFERENCES work(id),
+  derivation_type text,                   -- sample | interpolation | translation | arrangement
+  is_public_domain boolean NOT NULL DEFAULT false
+);
+
+-- L1: родительская сущность трека --------------------------------
+CREATE TABLE track (
+  id                 uuid PRIMARY KEY,
+  work_id            uuid NOT NULL REFERENCES work(id),
+  primary_artist_id  uuid NOT NULL REFERENCES artist(id),
+  title_display      text NOT NULL,
+  first_release_date date,
+  is_cover_of_track_id uuid REFERENCES track(id),
+  cover_type         text,                -- cover | tribute | translation | re_recording
+  default_recording_id uuid,              -- материализуется на рынок
+  popularity_rollup  int  NOT NULL DEFAULT 0,
+  saves_rollup       int  NOT NULL DEFAULT 0,
+  UNIQUE (work_id, primary_artist_id, title_display)
+);
+
+-- L2: версии ------------------------------------------------------
+CREATE TABLE recording (
+  id            uuid PRIMARY KEY,
+  track_id      uuid NOT NULL REFERENCES track(id),
+  isrc          text UNIQUE,
+  version_type  text NOT NULL,            -- studio | live | demo | remaster | remix | ...
+  version_label text,                     -- 'Live at Wembley, 1986'
+  duration_ms   int  NOT NULL,
+  recorded_at   date,
+  released_at   date,
+  is_live       boolean NOT NULL DEFAULT false,
+  is_explicit   boolean NOT NULL DEFAULT false,
+  is_instrumental boolean NOT NULL DEFAULT false,
+  language      text,
+  bpm           numeric, music_key text, loudness numeric,
+  remix_of_recording_id    uuid REFERENCES recording(id),
+  remaster_of_recording_id uuid REFERENCES recording(id),
+  event_id      uuid REFERENCES event(id),
+  session_id    uuid REFERENCES session(id),
+  is_primary_for_track boolean NOT NULL DEFAULT false,
+  catalog_visibility text NOT NULL DEFAULT 'secondary'  -- primary | secondary | hidden
+);
+
+CREATE TABLE recording_availability (
+  recording_id uuid NOT NULL REFERENCES recording(id),
+  territory    char(2) NOT NULL,
+  tier         text    NOT NULL,          -- free | premium | hi-res
+  valid_from   date, valid_to date,
+  PRIMARY KEY (recording_id, territory, tier, valid_from)
+);
+
+-- Релизы ----------------------------------------------------------
+CREATE TABLE album (
+  id uuid PRIMARY KEY,
+  primary_artist_id uuid REFERENCES artist(id),   -- NULL для сборной солянки
+  title text NOT NULL,
+  album_type text NOT NULL,               -- album | ep | single | compilation | live | soundtrack
+  is_various_artists boolean NOT NULL DEFAULT false,
+  compilation_kind text,                  -- greatest_hits | thematic | label | soundtrack
+  first_release_date date,
+  default_edition_id uuid
+);
+
+CREATE TABLE edition (
+  id uuid PRIMARY KEY,
+  album_id uuid NOT NULL REFERENCES album(id),
+  upc text UNIQUE,
+  edition_label text,                     -- 'Deluxe', '10th Anniversary Remaster'
+  released_at date,
+  territory char(2),
+  label_id uuid REFERENCES label(id),
+  total_discs int NOT NULL DEFAULT 1
+);
+
+CREATE TABLE release_track (              -- ссылается на ЗАПИСЬ, не на трек
+  edition_id   uuid NOT NULL REFERENCES edition(id),
+  recording_id uuid NOT NULL REFERENCES recording(id),
+  disc_no  int NOT NULL DEFAULT 1,
+  position int NOT NULL,
+  is_bonus boolean NOT NULL DEFAULT false,
+  display_artist text,                    -- переопределение для сборников
+  PRIMARY KEY (edition_id, disc_no, position)
+);
+
+-- Люди и роли -----------------------------------------------------
+CREATE TABLE person (
+  id uuid PRIMARY KEY, legal_name text NOT NULL, sort_name text,
+  born_at date, died_at date, country char(2), ipi text
+);
+
+CREATE TABLE artist (
+  id uuid PRIMARY KEY, name text NOT NULL, disambiguation text,
+  artist_type text NOT NULL,              -- person | band | duo | orchestra | project | alias
+  parent_artist_id uuid REFERENCES artist(id),
+  formed_at date, disbanded_at date, country char(2),
+  is_verified boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE artist_membership (
+  artist_id uuid NOT NULL REFERENCES artist(id),
+  person_id uuid NOT NULL REFERENCES person(id),
+  roles text[] NOT NULL,
+  valid_from date, valid_to date,
+  PRIMARY KEY (artist_id, person_id, valid_from)
+);
+
+CREATE TABLE role (
+  id uuid PRIMARY KEY, name text NOT NULL,
+  category text NOT NULL,                 -- writing | performance | production | technical
+  applies_to_level text NOT NULL          -- work | track | recording | edition
+);
+
+-- Композитор, поэт и музыканты живут здесь ------------------------
+CREATE TABLE credit (
+  id uuid PRIMARY KEY,
+  person_id uuid REFERENCES person(id),
+  artist_id uuid REFERENCES artist(id),
+  target_type text NOT NULL,              -- work | track | recording | edition
+  target_id   uuid NOT NULL,
+  role_id     uuid NOT NULL REFERENCES role(id),
+  instrument  text,
+  is_primary  boolean NOT NULL DEFAULT false,
+  is_featured boolean NOT NULL DEFAULT false,
+  sort_order  int NOT NULL DEFAULT 0,
+  CHECK (num_nonnulls(person_id, artist_id) = 1)
+);</code></pre>
+  </details>
+
+  <details>
+    <summary>Курирование и потребление</summary>
+<pre><code>CREATE TABLE playlist (
+  id uuid PRIMARY KEY,
+  playlist_type text NOT NULL,            -- editorial | user | algorithmic | auto
+  owner_user_id uuid REFERENCES app_user(id),
+  title text NOT NULL, description text, cover_url text,
+  visibility text NOT NULL DEFAULT 'private',
+  is_collaborative boolean NOT NULL DEFAULT false,
+  is_dynamic boolean NOT NULL DEFAULT false,
+  refresh_policy text, ruleset jsonb, seed_refs jsonb,
+  markets char(2)[]
+);
+
+CREATE TABLE playlist_item (              -- тоже на ЗАПИСЬ
+  playlist_id  uuid NOT NULL REFERENCES playlist(id),
+  recording_id uuid NOT NULL REFERENCES recording(id),
+  position int NOT NULL,
+  added_by uuid REFERENCES app_user(id),
+  added_at timestamptz NOT NULL DEFAULT now(),
+  version_locked boolean NOT NULL DEFAULT true,
+  PRIMARY KEY (playlist_id, position)
+);
+
+CREATE TABLE library_item (
+  user_id uuid NOT NULL REFERENCES app_user(id),
+  ref_type text NOT NULL,                 -- track | album | playlist | artist | recording
+  ref_id   uuid NOT NULL,
+  added_at timestamptz NOT NULL DEFAULT now(),
+  source_entry_point text,                -- откуда сохранил — вход в CJM
+  pinned_recording_id uuid REFERENCES recording(id),
+  PRIMARY KEY (user_id, ref_type, ref_id)
+);
+
+CREATE TABLE play_event (
+  id bigserial PRIMARY KEY,
+  user_id uuid NOT NULL,
+  session_id uuid NOT NULL,
+  recording_id uuid NOT NULL REFERENCES recording(id),
+  track_id uuid NOT NULL,                 -- денормализация для роллапов
+  work_id  uuid NOT NULL,
+  context_type text NOT NULL,             -- playlist | album | artist | station | search | library
+  context_id   uuid,
+  entry_point  text NOT NULL,             -- словарь из §07
+  surface      text,
+  position_in_context int,
+  started_at timestamptz NOT NULL,
+  ms_played  int NOT NULL,
+  completion_rate numeric,
+  is_skip boolean NOT NULL DEFAULT false,
+  skip_at_ms int,
+  is_repeat boolean NOT NULL DEFAULT false,
+  reason_start text,                      -- click | autoplay | shuffle | continue
+  reason_end   text,
+  device text, is_offline boolean NOT NULL DEFAULT false
+);</code></pre>
+  </details>
+</section>
+
+<footer>
+  <span>Схема данных каталога · музыкальный стриминг</span>
+  <span>Ядро: Произведение → Трек → Запись</span>
+</footer>
+
+</main>
+</div>
+</div>
