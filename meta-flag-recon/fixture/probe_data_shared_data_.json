@@ -1,0 +1,1 @@
+{"config":{"csrf_token":"x"},"qe":{"ig_web_reels_autoadvance":{"g":"test_group_a","p":{"enabled":"true","max_items":"20"}},"ig_web_ai_search":{"g":"control","p":{"enabled":"false"}}}}
