@@ -29,9 +29,37 @@ python3 -m pip install playwright pyyaml && python3 -m playwright install chromi
 Cookie после этого лежит в `.browser-profile/` и переживает перезапуски.
 С этого момента прогоны идут без вас.
 
-Права уже прописаны в `.claude/settings.json` в корне репозитория —
-Claude запускает конвейер, не спрашивая разрешения на каждую команду.
-Если что-то всё равно спрашивает: `/permissions` покажет, что добавить.
+**Права придётся прописать самому.** Этого файла в репозитории нет
+намеренно: Claude не может выписывать себе разрешения, попытка
+закоммитить его отклоняется. Создайте `.claude/settings.json` в КОРНЕ
+репозитория (на уровень выше этой папки):
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(./run.sh:*)",
+      "Bash(python3 scrape.py:*)",
+      "Bash(python3 score.py:*)",
+      "Bash(python3 fetch_photos.py:*)",
+      "Read(avito-chess-hunter/photos/**)",
+      "Read(avito-chess-hunter/debug/**)"
+    ]
+  }
+}
+```
+
+Без него всё работает, просто Claude будет спрашивать разрешение на каждый
+запуск. Мешает только в cron, где спросить некого. `/permissions` в сессии
+покажет, что ещё добавить.
+
+**Важно про каталоги.** Файл прав — единственное, что лежит в корне.
+Все остальные команды запускаются из `avito-chess-hunter/`:
+
+```
+claude_skills/                  <- корень, здесь .claude/settings.json
+└── avito-chess-hunter/         <- здесь всё остальное, команды отсюда
+```
 
 ## Дальше Claude делает всё сам
 
