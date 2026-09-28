@@ -151,12 +151,48 @@ def parse_from_dom(page) -> list[dict]:
     )
 
 
-def looks_blocked(html: str) -> bool:
-    low = html.lower()
-    return any(s in low for s in (
-        "доступ ограничен", "подтвердите, что вы не робот", "firewall",
-        "captcha", "ваш ip", "too many requests",
-    ))
+# Маркеры ищем ТОЛЬКО в видимом тексте страницы. Прежняя версия скармливала
+# сюда page.content(), то есть весь HTML вместе с инлайн-скриптами, — а в
+# бандле антибота Avito слово "captcha" присутствует всегда. Детектор
+# срабатывал на каждой странице. Классический ложноположительный.
+BLOCK_MARKERS = (
+    "доступ ограничен",
+    "подтвердите, что вы не робот",
+    "вы не робот",
+    "слишком много запросов",
+    "превышено количество запросов",
+    "ваш ip-адрес заблокирован",
+)
+
+
+def visible_text(page, limit: int = 4000) -> str:
+    """Видимый текст body, без script/style."""
+    try:
+        return (page.inner_text("body", timeout=5000) or "")[:limit].lower()
+    except Exception:
+        return ""
+
+
+def detect_block(page, status: int | None, n_items: int) -> str:
+    """Вернуть причину блокировки или пустую строку.
+
+    Блокировкой считаем только то, что реально ею является:
+      - HTTP 403/429 от сервера, либо
+      - лотов не разобрано И в ВИДИМОМ тексте есть маркер блокировки.
+    Наличие маркера при живых лотах блокировкой не считается: значит
+    это текст внутри страницы, а не заглушка вместо неё.
+    """
+    if status in (403, 429):
+        return f"HTTP {status}"
+    if n_items == 0:
+        vis = visible_text(page)
+        for m in BLOCK_MARKERS:
+            if m in vis:
+                return f"на странице: «{m}»"
+        # Пустая страница без маркеров — либо капча в iframe, либо конец выдачи.
+        if len(vis) < 200:
+            return "страница пуста"
+    return ""
 
 
 # --- основной цикл ----------------------------------------------------------
@@ -167,14 +203,18 @@ def main() -> int:
     ap.add_argument("--headful", action="store_true",
                     help="показать окно браузера (нужно на первом запуске, чтобы пройти капчу)")
     ap.add_argument("--max-pages", type=int, default=None, help="перекрыть значение из queries.yaml")
-    ap.add_argument("--delay", type=float, default=4.0, help="базовая пауза между страницами, сек")
+    ap.add_argument("--delay", type=float, default=20.0,
+                    help="базовая пауза между страницами, сек (меньше 15 — быстрая блокировка)")
+    ap.add_argument("--pages-per-query", type=int, default=3,
+                    help="страниц на запрос за один проход; глубокая пагинация = главный признак бота")
     args = ap.parse_args()
 
     from playwright.sync_api import sync_playwright
 
     cfg = load_cfg()
-    s = cfg["search"]
-    max_pages = args.max_pages or s["max_pages"]
+    s_cfg = cfg["search"]
+    if args.max_pages:
+        args.pages_per_query = args.max_pages
     DEBUG_DIR.mkdir(exist_ok=True)
 
     seen: set[int] = set()
@@ -195,70 +235,100 @@ def main() -> int:
             str(PROFILE_DIR),
             headless=not args.headful,
             locale="ru-RU",
+            args=["--disable-blink-features=AutomationControlled"],
             timezone_id="Europe/Moscow",
-            viewport={"width": 1440, "height": 900},
+            viewport={"width": random.choice([1366, 1440, 1536, 1920]),
+                      "height": random.choice([768, 864, 900, 1080])},
             user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                         "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"),
         )
         page = ctx.new_page()
 
-        for category in cfg["categories"]:
-            for query in s["queries"]:
-                empty_streak = 0
-                for pno in range(1, max_pages + 1):
-                    url = build_url(s["base"], category, s["location"], query, pno, s["sort"])
+        # --- форма обхода -------------------------------------------------
+        # Раньше шли глубокой пагинацией по одному запросу: 1,2,3...50.
+        # Это и есть самый яркий признак бота, и именно на этом Avito
+        # закрывался к 4-5 странице.
+        #
+        # Заодно такая форма собирала наименее полезное. Сортировка по дате,
+        # лоты уходят за часы — значит страница 40 старого запроса мертва,
+        # а ценность сидит в первых 2-3 страницах МНОГИХ запросов. То есть
+        # мелко-широкий обход и безопаснее, и полезнее. Редкий случай, когда
+        # ограничение и польза указывают в одну сторону.
+        tasks = [(c, q) for c in cfg["categories"] for q in s_cfg["queries"]]
+        random.shuffle(tasks)
+
+        consecutive_blocks = 0
+        backoff = [120, 300, 900]      # сек: отступаем, а не падаем
+
+        for category, query in tasks:
+            for pno in range(1, args.pages_per_query + 1):
+                url = build_url(s_cfg["base"], category, s_cfg["location"], query, pno, s_cfg["sort"])
+                try:
+                    resp = page.goto(url, wait_until="domcontentloaded", timeout=45000)
+                    status = resp.status if resp else None
+                except Exception as exc:
+                    print(f"[warn] {url}: {exc}", file=sys.stderr)
+                    break
+
+                # немного человеческого поведения перед разбором
+                page.wait_for_timeout(random.randint(1200, 3000))
+                try:
+                    page.mouse.wheel(0, random.randint(300, 1200))
+                    page.wait_for_timeout(random.randint(400, 1200))
+                except Exception:
+                    pass
+
+                html = page.content()
+                items = parse_from_state(html)
+                if not items:
                     try:
-                        page.goto(url, wait_until="domcontentloaded", timeout=45000)
-                    except Exception as exc:
-                        print(f"[warn] {url}: {exc}", file=sys.stderr)
-                        break
-                    page.wait_for_timeout(1500)
-                    html = page.content()
+                        items = [i for i in parse_from_dom(page) if i.get("item_id")]
+                    except Exception:
+                        items = []
 
-                    if looks_blocked(html):
-                        print("\n!! Avito показал капчу или блок.", file=sys.stderr)
-                        if args.headful:
-                            input("   Пройдите её в окне браузера и нажмите Enter...")
-                            html = page.content()
-                        else:
-                            print("   Перезапустите с --headful и пройдите капчу один раз.",
-                                  file=sys.stderr)
-                            return 2
+                reason = detect_block(page, status, len(items))
+                if reason:
+                    consecutive_blocks += 1
+                    print(f"\n!! блокировка ({reason}), подряд: {consecutive_blocks}", file=sys.stderr)
+                    if args.headful:
+                        print("   Если в окне капча — пройдите её и нажмите Enter.", file=sys.stderr)
+                        print("   Если капчи нет — просто Enter, скрипт подождёт сам.", file=sys.stderr)
+                        input("   > ")
+                    if consecutive_blocks > len(backoff):
+                        print("   Avito закрылся всерьёз. Останавливаюсь — продолжите позже,\n"
+                              "   собранное уже в items.jsonl, повторный запуск продолжит с места.",
+                              file=sys.stderr)
+                        ctx.close()
+                        print(f"\nЧастично: {written} новых лотов -> {out_path}")
+                        return 3
+                    pause = backoff[consecutive_blocks - 1]
+                    print(f"   пауза {pause} сек", file=sys.stderr)
+                    time.sleep(pause)
+                    break          # этот запрос бросаем, идём к следующему
+                consecutive_blocks = 0
 
-                    items = parse_from_state(html)
-                    if not items:
-                        try:
-                            items = [i for i in parse_from_dom(page) if i.get("item_id")]
-                        except Exception:
-                            items = []
-                    if not items:
-                        tag = f"{category or 'all'}_{query}_{pno}".replace(" ", "_").replace("/", "_")
-                        (DEBUG_DIR / f"{tag}.html").write_text(html, encoding="utf-8")
-                        empty_streak += 1
-                        print(f"[miss] разбор не дал лотов, HTML в debug/{tag}.html", file=sys.stderr)
-                        if empty_streak >= 2:
-                            break          # либо кончились страницы, либо сломались селекторы
+                if not items:
+                    tag = f"{category or 'all'}_{query}_{pno}".replace(" ", "_").replace("/", "_")
+                    (DEBUG_DIR / f"{tag}.html").write_text(html, encoding="utf-8")
+                    print(f"[miss] разбор не дал лотов, HTML в debug/{tag}.html", file=sys.stderr)
+                    break
+
+                fresh = 0
+                for it in items:
+                    if it["item_id"] in seen:
                         continue
-                    empty_streak = 0
+                    seen.add(it["item_id"])
+                    it["query"] = query
+                    it["category"] = category
+                    it["scraped_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+                    sink.write(json.dumps(it, ensure_ascii=False) + "\n")
+                    fresh += 1
+                sink.flush()
+                written += fresh
+                print(f"[{category or 'all'}] «{query}» стр.{pno}: "
+                      f"{len(items)} на странице, {fresh} новых, всего {written}")
 
-                    fresh = 0
-                    for it in items:
-                        if it["item_id"] in seen:
-                            continue
-                        seen.add(it["item_id"])
-                        it["query"] = query
-                        it["category"] = category
-                        it["scraped_at"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-                        sink.write(json.dumps(it, ensure_ascii=False) + "\n")
-                        fresh += 1
-                    sink.flush()
-                    written += fresh
-                    print(f"[{category or 'all'}] «{query}» стр.{pno}: "
-                          f"{len(items)} на странице, {fresh} новых, всего {written}")
-
-                    if fresh == 0 and pno > 3:
-                        break              # дальше идут одни повторы
-                    time.sleep(args.delay * random.uniform(0.7, 1.5))
+                time.sleep(args.delay * random.uniform(0.6, 1.8))
         ctx.close()
 
     print(f"\nГотово: {written} новых лотов -> {out_path}")
