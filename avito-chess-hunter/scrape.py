@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import signal
 import pathlib
 import random
 import re
@@ -35,6 +36,23 @@ DEBUG_DIR = HERE / "debug"
 PROFILE_DIR = HERE / ".browser-profile"   # сюда ляжет cookie после ручной капчи
 
 ITEM_ID_RE = re.compile(r"_(\d{6,})(?:\?|$)")
+
+# Выход в моменте с сохранением. Данные пишутся в items.jsonl построчно с
+# flush после каждой страницы, поэтому собранное не теряется никогда — но
+# нужен способ остановиться, не убивая процесс на полуслове.
+_STOP = {"requested": False}
+
+
+def _install_sigint() -> None:
+    def handler(signum, frame):
+        if _STOP["requested"]:
+            # второй Ctrl+C — выходим жёстко
+            signal.signal(signal.SIGINT, signal.SIG_DFL)
+            raise KeyboardInterrupt
+        _STOP["requested"] = True
+        print("\n[stop] остановлюсь после текущей страницы, собранное сохранено.\n"
+              "       ещё раз Ctrl+C — выход немедленно.", file=sys.stderr)
+    signal.signal(signal.SIGINT, handler)
 
 
 def load_cfg() -> dict:
@@ -205,11 +223,17 @@ def main() -> int:
     ap.add_argument("--max-pages", type=int, default=None, help="перекрыть значение из queries.yaml")
     ap.add_argument("--delay", type=float, default=20.0,
                     help="базовая пауза между страницами, сек (меньше 15 — быстрая блокировка)")
+    ap.add_argument("--max-minutes", type=float, default=0,
+                    help="остановиться через N минут и сохранить собранное (0 = без лимита)")
+    ap.add_argument("--max-items", type=int, default=0,
+                    help="остановиться, набрав N новых лотов (0 = без лимита)")
     ap.add_argument("--pages-per-query", type=int, default=3,
                     help="страниц на запрос за один проход; глубокая пагинация = главный признак бота")
     args = ap.parse_args()
 
     from playwright.sync_api import sync_playwright
+
+    _install_sigint()
 
     cfg = load_cfg()
     s_cfg = cfg["search"]
@@ -260,8 +284,22 @@ def main() -> int:
         consecutive_blocks = 0
         backoff = [120, 300, 900]      # сек: отступаем, а не падаем
 
+        deadline = (time.time() + args.max_minutes * 60) if args.max_minutes else None
+
         for category, query in tasks:
+            if _STOP["requested"]:
+                break
             for pno in range(1, args.pages_per_query + 1):
+                if _STOP["requested"]:
+                    break
+                if deadline and time.time() > deadline:
+                    print(f"[stop] лимит {args.max_minutes} мин исчерпан", file=sys.stderr)
+                    _STOP["requested"] = True
+                    break
+                if args.max_items and written >= args.max_items:
+                    print(f"[stop] набрано {written} лотов, лимит достигнут", file=sys.stderr)
+                    _STOP["requested"] = True
+                    break
                 url = build_url(s_cfg["base"], category, s_cfg["location"], query, pno, s_cfg["sort"])
                 try:
                     resp = page.goto(url, wait_until="domcontentloaded", timeout=45000)
@@ -291,16 +329,23 @@ def main() -> int:
                     consecutive_blocks += 1
                     print(f"\n!! блокировка ({reason}), подряд: {consecutive_blocks}", file=sys.stderr)
                     if args.headful:
-                        print("   Если в окне капча — пройдите её и нажмите Enter.", file=sys.stderr)
-                        print("   Если капчи нет — просто Enter, скрипт подождёт сам.", file=sys.stderr)
-                        input("   > ")
+                        print("   Enter — продолжить (если капча, сначала пройдите её в окне)",
+                              file=sys.stderr)
+                        print("   s + Enter — остановиться СЕЙЧАС и сохранить собранное",
+                              file=sys.stderr)
+                        try:
+                            if (input("   > ").strip().lower() or "")[:1] == "s":
+                                _STOP["requested"] = True
+                                break
+                        except (EOFError, KeyboardInterrupt):
+                            _STOP["requested"] = True
+                            break
                     if consecutive_blocks > len(backoff):
                         print("   Avito закрылся всерьёз. Останавливаюсь — продолжите позже,\n"
                               "   собранное уже в items.jsonl, повторный запуск продолжит с места.",
                               file=sys.stderr)
-                        ctx.close()
-                        print(f"\nЧастично: {written} новых лотов -> {out_path}")
-                        return 3
+                        _STOP["requested"] = True
+                        break
                     pause = backoff[consecutive_blocks - 1]
                     print(f"   пауза {pause} сек", file=sys.stderr)
                     time.sleep(pause)
@@ -331,7 +376,13 @@ def main() -> int:
                 time.sleep(args.delay * random.uniform(0.6, 1.8))
         ctx.close()
 
-    print(f"\nГотово: {written} новых лотов -> {out_path}")
+    if _STOP["requested"]:
+        print(f"\nОстановлено досрочно. Сохранено {written} новых лотов -> {out_path}")
+        print("Повторный запуск продолжит с этого места.")
+    else:
+        print(f"\nГотово: {written} новых лотов -> {out_path}")
+    # Код 0 даже при досрочной остановке: частичный сбор — это результат,
+    # и пайплайн должен идти к ранжированию, а не падать.
     return 0
 
 
