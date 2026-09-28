@@ -47,6 +47,10 @@ queries.yaml ──> scrape.py ──> items.jsonl ──> score.py ──> shor
 
 ## Запуск
 
+Чтобы конвейер шёл без вашего участия — см. **[SETUP.md](SETUP.md)**:
+там разобрано, какие три преграды стоят на пути автономности и почему
+облачная сессия не годится, а локальная годится.
+
 ```bash
 pip install playwright pyyaml
 playwright install chromium
@@ -59,6 +63,12 @@ python scrape.py --out items.jsonl
 
 # шортлист
 python score.py items.jsonl --top 100 > shortlist.csv
+
+# фото только по шортлисту
+python fetch_photos.py items.jsonl shortlist.csv --out photos
+
+# либо всё сразу
+./run.sh
 
 # проверка логики ранжирования на синтетике
 python score.py --selftest
