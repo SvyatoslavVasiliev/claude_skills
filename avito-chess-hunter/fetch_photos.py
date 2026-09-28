@@ -14,9 +14,21 @@ import argparse
 import csv
 import json
 import pathlib
+import platform
 import sys
 import time
 import urllib.request
+
+
+# UA должен соответствовать реальной платформе. Раньше здесь стоял жёстко
+# прописанный Windows-UA, что на macOS противоречит остальному отпечатку —
+# ровно та ошибка, из-за которой Avito отличал нас от обычного браузера.
+_PLATFORM = {
+    "Darwin": "Macintosh; Intel Mac OS X 10_15_7",
+    "Windows": "Windows NT 10.0; Win64; x64",
+}.get(platform.system(), "X11; Linux x86_64")
+UA = (f"Mozilla/5.0 ({_PLATFORM}) AppleWebKit/537.36 "
+      "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36")
 
 
 def main() -> int:
@@ -61,8 +73,7 @@ def main() -> int:
                 continue
             try:
                 req = urllib.request.Request(url, headers={
-                    "User-Agent": ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                                   "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"),
+                    "User-Agent": UA,
                     "Referer": "https://www.avito.ru/",
                 })
                 with urllib.request.urlopen(req, timeout=30) as r:

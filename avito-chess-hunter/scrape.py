@@ -218,6 +218,11 @@ def detect_block(page, status: int | None, n_items: int) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="items.jsonl")
+    ap.add_argument("--cdp", metavar="URL", default="",
+                    help="подключиться к уже запущенному Chrome, например http://localhost:9222 "
+                         "(лучший режим: настоящий отпечаток, ваши куки, капча уже пройдена)")
+    ap.add_argument("--channel", default="", metavar="NAME",
+                    help="использовать настоящий браузер вместо сборки Chromium: chrome | msedge")
     ap.add_argument("--headful", action="store_true",
                     help="показать окно браузера (нужно на первом запуске, чтобы пройти капчу)")
     ap.add_argument("--max-pages", type=int, default=None, help="перекрыть значение из queries.yaml")
@@ -255,18 +260,50 @@ def main() -> int:
 
     written = 0
     with sync_playwright() as pw, open(out_path, "a", encoding="utf-8") as sink:
-        ctx = pw.chromium.launch_persistent_context(
-            str(PROFILE_DIR),
-            headless=not args.headful,
-            locale="ru-RU",
-            args=["--disable-blink-features=AutomationControlled"],
-            timezone_id="Europe/Moscow",
-            viewport={"width": random.choice([1366, 1440, 1536, 1920]),
-                      "height": random.choice([768, 864, 900, 1080])},
-            user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                        "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"),
-        )
-        page = ctx.new_page()
+        # --- три режима запуска браузера -----------------------------------
+        # Avito различает не частоту, а ОТПЕЧАТОК. Симптом: в личном Chrome
+        # всё открывается, в Playwright-Chromium с того же IP — блокировка.
+        # Значит сбавлять паузы бесполезно, надо перестать выглядеть ботом.
+        #
+        # Раньше здесь подставлялся user_agent с "Windows NT 10.0" на macOS —
+        # при том, что navigator.platform, WebGL-рендерер и Client Hints
+        # говорили Mac. Такое противоречие само выдаёт автоматизацию.
+        # Поэтому UA больше не подставляется вообще: настоящий браузер
+        # представляется сам, и это согласованно.
+        browser = None
+        if args.cdp:
+            # Лучший режим: подключаемся к ВАШЕМУ уже запущенному Chrome.
+            # Отпечаток настоящий, потому что браузер настоящий; куки и
+            # пройденная капча уже на месте.
+            print(f"подключаюсь к Chrome по CDP: {args.cdp}", file=sys.stderr)
+            browser = pw.chromium.connect_over_cdp(args.cdp)
+            ctx = browser.contexts[0] if browser.contexts else browser.new_context()
+            page = ctx.new_page()
+        else:
+            launch_kw = dict(
+                headless=not args.headful,
+                locale="ru-RU",
+                timezone_id="Europe/Moscow",
+                args=["--disable-blink-features=AutomationControlled"],
+                viewport=None,          # окно как у человека, без фиксированной рамки
+            )
+            if args.channel:
+                # Настоящий Chrome вместо Playwright-сборки Chromium:
+                # другой набор кодеков, Widevine, UA — заметно меньше подозрений.
+                launch_kw["channel"] = args.channel
+            ctx = pw.chromium.launch_persistent_context(str(PROFILE_DIR), **launch_kw)
+            page = ctx.new_page()
+
+        # Снять самые грубые маркеры автоматизации. Помогает не всегда —
+        # это гонка вооружений, а не решение. Решение — режим --cdp.
+        try:
+            ctx.add_init_script(
+                "Object.defineProperty(navigator,'webdriver',{get:()=>undefined});"
+                "window.chrome=window.chrome||{runtime:{}};"
+                "Object.defineProperty(navigator,'languages',{get:()=>['ru-RU','ru','en-US']});"
+            )
+        except Exception:
+            pass
 
         # --- форма обхода -------------------------------------------------
         # Раньше шли глубокой пагинацией по одному запросу: 1,2,3...50.
@@ -374,7 +411,13 @@ def main() -> int:
                       f"{len(items)} на странице, {fresh} новых, всего {written}")
 
                 time.sleep(args.delay * random.uniform(0.6, 1.8))
-        ctx.close()
+        if browser is not None:
+            try:
+                page.close()          # браузер ВАШ, закрывать его мы не вправе
+            except Exception:
+                pass
+        else:
+            ctx.close()
 
     if _STOP["requested"]:
         print(f"\nОстановлено досрочно. Сохранено {written} новых лотов -> {out_path}")
