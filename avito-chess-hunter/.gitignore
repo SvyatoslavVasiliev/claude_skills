@@ -1,0 +1,5 @@
+.browser-profile/
+debug/
+items.jsonl
+shortlist.csv
+__pycache__/
