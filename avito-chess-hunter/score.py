@@ -77,6 +77,42 @@ ESTATE_WORDS = [
 BOX_WORDS = ["родная коробка", "в коробке", "с коробкой", "этикетк", "наклейк", "паспорт"]
 
 
+# --- жёсткие датирующие токены -----------------------------------------------
+# Токен в тексте, который ставит НИЖНЮЮ границу даты изготовления. Если эта
+# граница позже COLLECTOR_CUTOFF, лот выпадает независимо от всех остальных
+# сигналов: коллекционный интерес сосредоточен в допороговом периоде.
+#
+# Найдено на первом же реальном объявлении: «шахматы СССР со знаком качества»
+# набирало 0.38 и проходило порог, хотя знак качества введён 20.04.1967
+# (ГОСТ 1.9-67) и им маркировали СЕРИЙНУЮ продукцию гражданского назначения.
+# То есть токен, который продавец подаёт как признак ценности, — прямое
+# свидетельство массовости и поздней даты. Фильтр этого не видел вообще.
+
+COLLECTOR_CUTOFF = 1950      # ниже этой даты сидит основной интерес коллекционеров
+
+HARD_DATING = [
+    # (токены, год-пол, обоснование, confidence)
+    (["знак качества", "знаком качества", "знака качества", "знак кач-ва"],
+     1967, "Гос. знак качества СССР введён 20.04.1967 (ГОСТ 1.9-67); ставился на серийную продукцию", "grounded"),
+    (["олимпиада-80", "олимпиада 80", "олимпиада'80", "москва-80", "москва 80", "олимпийск"],
+     1980, "Олимпийская символика Москвы-80", "grounded"),
+    (["штрих-код", "штрихкод", "штриховой код"],
+     1990, "Штриховое кодирование на потребтоваре в РФ — не ранее 1990-х", "memory"),
+    (["made in russia", "сделано в россии", "рф,", "россия, "],
+     1992, "Маркировка РФ, а не СССР", "memory"),
+]
+
+
+def hard_date_floor(text: str) -> tuple[int | None, str, str]:
+    """Вернуть (год-пол, обоснование, confidence) по самому позднему сработавшему токену."""
+    best = (None, "", "")
+    for tokens, year, why, conf in HARD_DATING:
+        if any(t in text for t in tokens):
+            if best[0] is None or year > best[0]:
+                best = (year, why, conf)
+    return best
+
+
 def _hits(text: str, words: list[str]) -> list[str]:
     return [w for w in words if w in text]
 
@@ -124,9 +160,19 @@ def score_item(it: dict) -> dict:
     raw = ignorance * substrate * photo_factor - dealer_penalty - repro_penalty
     score = max(0.0, raw)
 
+    # Жёсткое датирование перебивает всё остальное.
+    floor_year, floor_why, floor_conf = hard_date_floor(text)
+    excluded_by = ""
+    if floor_year is not None and floor_year >= COLLECTOR_CUTOFF:
+        score = 0.0
+        excluded_by = f"не ранее {floor_year}: {floor_why}"
+
     return {
         **it,
         "score": round(score, 4),
+        "date_floor": floor_year or "",
+        "excluded_by": excluded_by or "-",
+        "date_floor_confidence": floor_conf or "-",
         "ignorance": round(ignorance, 3),
         "substrate": round(substrate, 3),
         "dealer_penalty": round(dealer_penalty, 3),
@@ -154,6 +200,12 @@ SELFTEST = [
     ("пустышка без зацепок",
      {"item_id": 4, "title": "Шахматы пластик детские", "photo_count": 2,
       "description": "Новые в упаковке"}, "low"),
+    ("РЕГРЕССИЯ (реальный лот 8480938693): знак качества => не ранее 1967",
+     {"item_id": 8480938693, "title": "Шахматы СССР со знаком качества", "photo_count": 3,
+      "description": ""}, "low"),
+    ("олимпийская символика => 1980",
+     {"item_id": 6, "title": "Шахматы старые", "photo_count": 3,
+      "description": "Дедушкины, с дачи, Олимпиада-80, не разбираюсь"}, "low"),
     ("кость + родная коробка, описание короткое",
      {"item_id": 5, "title": "Шахматы костяные", "photo_count": 4,
       "description": "В родной коробке, СССР. Как есть."}, "high"),
@@ -179,8 +231,9 @@ def selftest() -> int:
 
 # --- основной путь ----------------------------------------------------------
 
-FIELDS = ["score", "item_id", "price", "title", "signals", "dealer_hits",
-          "repro_hits", "ignorance", "substrate", "photo_count", "url"]
+FIELDS = ["score", "item_id", "price", "title", "excluded_by", "date_floor",
+          "signals", "dealer_hits", "repro_hits", "ignorance", "substrate",
+          "photo_count", "url"]
 
 
 def main() -> int:
