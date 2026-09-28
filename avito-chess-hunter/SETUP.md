@@ -20,7 +20,7 @@ Claude Code локально — CLI в терминале, десктоп-пр�
 
 ```bash
 cd avito-chess-hunter
-pip install playwright pyyaml && playwright install chromium
+python3 -m pip install playwright pyyaml && python3 -m playwright install chromium
 
 # ЕДИНСТВЕННЫЙ шаг, где нужен человек: пройти капчу в окне браузера
 ./run.sh --headful --max-pages 2
@@ -90,3 +90,39 @@ Network access, добавить `avito.ru`. Плюс `sovietchesssets.com` и
 утяжеления, фактура сукна, столярка коробки, линии Шрегера на кости.
 Конвейер отвечает на вопрос «кого спросить и о чём», а решение о покупке
 остаётся за осмотром. Это ограничение метода, а не настройки.
+
+## Если что-то не ставится
+
+**`playwright: command not found`** — самая частая. CLI ставится в каталог
+скриптов Python, которого нет в `PATH`. Вызывайте через модуль, тогда
+интерпретатор находит его сам:
+
+```bash
+python3 -m playwright install chromium
+```
+
+**`No module named playwright` при том, что pip отчитался об установке** —
+`pip` и `python3` это разные интерпретаторы. Ставьте тем же, которым
+запускаете:
+
+```bash
+python3 -m pip install playwright pyyaml
+```
+
+**Проверка, что всё на месте:**
+
+```bash
+python3 -m playwright --version     # должна быть версия, не ошибка
+python3 -c "import yaml; print('yaml ok')"
+```
+
+**Windows** — вместо `python3` пишите `python` или `py -3`.
+
+**Чисто, чтобы не ломать системный Python** (рекомендуется):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+python3 -m pip install playwright pyyaml
+python3 -m playwright install chromium
+```

@@ -52,8 +52,8 @@ queries.yaml ──> scrape.py ──> items.jsonl ──> score.py ──> shor
 облачная сессия не годится, а локальная годится.
 
 ```bash
-pip install playwright pyyaml
-playwright install chromium
+python3 -m pip install playwright pyyaml
+python3 -m playwright install chromium   # через -m: CLI часто не попадает в PATH
 
 # первый раз с окном — пройти капчу руками, cookie сохранится в .browser-profile
 python scrape.py --headful --max-pages 2
