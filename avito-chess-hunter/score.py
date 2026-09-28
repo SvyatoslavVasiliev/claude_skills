@@ -231,9 +231,116 @@ def selftest() -> int:
 
 # --- основной путь ----------------------------------------------------------
 
-FIELDS = ["score", "item_id", "price", "title", "excluded_by", "date_floor",
-          "signals", "dealer_hits", "repro_hits", "ignorance", "substrate",
-          "photo_count", "url"]
+FIELDS = ["verdict", "score", "band", "price", "title", "signals",
+          "excluded_by", "dealer_hits", "repro_hits", "ignorance", "substrate",
+          "photo_count", "item_id", "url"]
+
+
+def band_of(rank: int, total: int) -> str:
+    """В какой трети рейтинга сидит лот."""
+    if total <= 1:
+        return "верх"
+    q = rank / (total - 1)
+    return "верх" if q < 0.15 else ("середина" if q < 0.6 else "низ")
+
+
+def stratified(scored: list[dict], n: int = 60) -> list[dict]:
+    """Выборка для калибровки: сверху, из середины и снизу.
+
+    Размечать только топ бессмысленно: так видно ложноположительные, но не
+    ложноотрицательные — а пропущенная жемчужина стоит дороже лишнего
+    кандидата. Поэтому берём из всех трёх полос.
+    """
+    import random
+    random.seed(0)
+    ordered = sorted(scored, key=lambda r: -r["score"])
+    total = len(ordered)
+    for i, r in enumerate(ordered):
+        r["band"] = band_of(i, total)
+    buckets: dict[str, list[dict]] = {"верх": [], "середина": [], "низ": []}
+    for r in ordered:
+        buckets[r["band"]].append(r)
+    # 40% сверху, 30% середина, 30% снизу
+    plan = [("верх", int(n * 0.4)), ("середина", int(n * 0.3)), ("низ", n - int(n * 0.4) - int(n * 0.3))]
+    out: list[dict] = []
+    for band, k in plan:
+        pool = buckets[band]
+        out.extend(random.sample(pool, min(k, len(pool))))
+    out.sort(key=lambda r: -r["score"])
+    return out
+
+
+def write_rows(rows: list[dict], dest: str | None) -> None:
+    """CSV с BOM: иначе Excel ломает кириллицу. Numbers и LibreOffice тоже ок."""
+    if dest:
+        fh = open(dest, "w", encoding="utf-8-sig", newline="")
+    else:
+        fh = sys.stdout
+    try:
+        w = csv.DictWriter(fh, fieldnames=FIELDS, extrasaction="ignore")
+        w.writeheader()
+        for r in rows:
+            r.setdefault("verdict", "")
+            r.setdefault("band", "")
+            w.writerow(r)
+    finally:
+        if dest:
+            fh.close()
+
+
+def evaluate(scored: list[dict], labeled_path: str) -> int:
+    """Сверить текущие баллы с вашей разметкой и подобрать порог.
+
+    Честная граница: 50-60 меток позволяют настроить ПОРОГ, но не
+    переобучить шесть весов — данных слишком мало, получится подгонка.
+    """
+    marks: dict[str, str] = {}
+    with open(labeled_path, encoding="utf-8-sig") as fh:
+        for row in csv.DictReader(fh):
+            v = (row.get("verdict") or "").strip().lower()
+            if v and row.get("item_id"):
+                marks[row["item_id"]] = v
+    if not marks:
+        print("в файле нет заполненной колонки verdict", file=sys.stderr)
+        return 1
+
+    by_id = {str(r["item_id"]): r for r in scored}
+    pairs = [(by_id[i]["score"], v) for i, v in marks.items() if i in by_id]
+    if not pairs:
+        print("ни один размеченный item_id не найден в items.jsonl", file=sys.stderr)
+        return 1
+
+    good = {"gem", "maybe"}
+    print(f"размечено {len(pairs)} лотов: "
+          f"gem {sum(1 for _, v in pairs if v == 'gem')}, "
+          f"maybe {sum(1 for _, v in pairs if v == 'maybe')}, "
+          f"no {sum(1 for _, v in pairs if v == 'no')}\n")
+
+    print(f"{'порог':>7} {'найдено':>8} {'точность':>9} {'полнота':>8} {'F1':>6}")
+    print("-" * 44)
+    total_good = sum(1 for _, v in pairs if v in good)
+    best = (0.0, -1.0)
+    for th in [i / 20 for i in range(0, 21)]:
+        tp = sum(1 for sc, v in pairs if sc >= th and v in good)
+        fp = sum(1 for sc, v in pairs if sc >= th and v not in good)
+        prec = tp / (tp + fp) if tp + fp else 0.0
+        rec = tp / total_good if total_good else 0.0
+        f1 = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
+        if f1 > best[1]:
+            best = (th, f1)
+        print(f"{th:>7.2f} {tp + fp:>8} {prec:>9.2f} {rec:>8.2f} {f1:>6.2f}")
+    print("-" * 44)
+    print(f"лучший порог по F1: {best[0]:.2f} (сейчас 0.15)")
+
+    missed = [(sc, v) for sc, v in pairs if v == "gem" and sc < 0.15]
+    if missed:
+        print(f"\nВАЖНО: {len(missed)} лотов с вердиктом gem фильтр отсеял "
+              f"(баллы {', '.join(f'{sc:.2f}' for sc, _ in missed)}).")
+        print("Это ложноотрицательные — они дороже лишних кандидатов.")
+        print("Пришлите файл Claude: по ним видно, каких признаков не хватает словарям.")
+    else:
+        print("\nЛожноотрицательных нет: ни один gem не отсеян.")
+    return 0
 
 
 def main() -> int:
@@ -242,8 +349,12 @@ def main() -> int:
     ap.add_argument("--top", type=int, default=100)
     ap.add_argument("--min-score", type=float, default=0.15)
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--out", metavar="FILE", help="записать в файл, а не в stdout")
     ap.add_argument("--calibrate", action="store_true",
-                    help="вывести случайные 50 лотов для ручной разметки, а не топ")
+                    help="расслоённая выборка для ручной разметки: верх, середина и низ")
+    ap.add_argument("--calibrate-n", type=int, default=60, help="размер калибровочной выборки")
+    ap.add_argument("--eval", metavar="FILE",
+                    help="сверить баллы с вашей разметкой и подобрать порог")
     args = ap.parse_args()
 
     if args.selftest:
@@ -260,21 +371,27 @@ def main() -> int:
 
     scored = [score_item(it) for it in items]
 
-    if args.calibrate:
-        import random
-        random.seed(0)
-        rows = random.sample(scored, min(50, len(scored)))
-        print("# разметьте колонку verdict вручную: gem / maybe / no", file=sys.stderr)
-    else:
-        rows = [r for r in scored if r["score"] >= args.min_score]
-        rows.sort(key=lambda r: -r["score"])
-        rows = rows[: args.top]
+    if args.eval:
+        return evaluate(scored, args.eval)
 
-    w = csv.DictWriter(sys.stdout, fieldnames=FIELDS + (["verdict"] if args.calibrate else []),
-                       extrasaction="ignore")
-    w.writeheader()
-    for r in rows:
-        w.writerow(r)
+    if args.calibrate:
+        rows = stratified(scored, args.calibrate_n)
+        dest = args.out or "calibrate.csv"
+        write_rows(rows, dest)
+        print(f"\n{len(rows)} лотов -> {dest}", file=sys.stderr)
+        print("Проставьте в колонке verdict: gem / maybe / no.", file=sys.stderr)
+        print("Выборка расслоённая (верх, середина, низ) — так видны не только", file=sys.stderr)
+        print("лишние кандидаты, но и пропущенные жемчужины.", file=sys.stderr)
+        print(f"Потом: python3 score.py items.jsonl --eval {dest}", file=sys.stderr)
+        return 0
+
+    ordered = sorted(scored, key=lambda r: -r["score"])
+    for i, r in enumerate(ordered):
+        r["band"] = band_of(i, len(ordered))
+    rows = [r for r in ordered if r["score"] >= args.min_score][: args.top]
+    write_rows(rows, args.out)
+    if args.out:
+        print(f"топ-{len(rows)} -> {args.out}", file=sys.stderr)
 
     print(f"всего лотов {len(items)}, прошли порог {sum(1 for r in scored if r['score'] >= args.min_score)}, "
           f"выведено {len(rows)}", file=sys.stderr)

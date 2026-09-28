@@ -32,7 +32,7 @@ finish() {
   fi
 
   echo "[2/3] ранжирование по незнанию продавца"
-  python3 score.py items.jsonl --top "$TOP" > "shortlist-$STAMP.csv" || {
+  python3 score.py items.jsonl --top "$TOP" --out "shortlist-$STAMP.csv" || {
     echo "ранжирование упало, но items.jsonl на месте — данные не потеряны"; exit 1; }
   ln -sf "shortlist-$STAMP.csv" shortlist.csv
 
